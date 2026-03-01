@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package worldmonitor.legislative.v1;
+
+import "sebuf/http/annotations.proto";
+import "worldmonitor/legislative/v1/nominal_vote.proto";
+
+message ListRecentNominalVotesRequest {
+  int32 dias = 1 [(sebuf.http.query) = { name: "dias" }];
+  int32 limit = 2 [(sebuf.http.query) = { name: "limit" }];
+  int32 offset = 3 [(sebuf.http.query) = { name: "offset" }];
+}
+
+message ListRecentNominalVotesResponse {
+  repeated NominalVoteSession votacoes = 1;
+  int32 total = 2;
+  string source = 3;
+  int64 generated_at = 4 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+}

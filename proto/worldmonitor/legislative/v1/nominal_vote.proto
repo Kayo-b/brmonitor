@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package worldmonitor.legislative.v1;
+
+import "sebuf/http/annotations.proto";
+
+// Minimal proposicao payload associated with a Camara votacao.
+message LegislativeProposicao {
+  int64 id = 1 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+  string codigo = 2;
+  string sigla_tipo = 3;
+  string numero = 4;
+  int32 ano = 5;
+  string ementa = 6;
+  string uri = 7;
+}
+
+// Minimal deputado payload associated with a nominal vote.
+message LegislativeDeputado {
+  int64 id = 1 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+  string nome = 2;
+  string sigla_partido = 3;
+  string sigla_uf = 4;
+  string uri = 5;
+}
+
+// Normalized nominal voting session.
+message NominalVoteSession {
+  string votacao_id = 1;
+  int64 data_hora_registro = 2 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+  string data_hora_registro_iso = 3;
+  string sigla_orgao = 4;
+  string descricao = 5;
+  string resultado = 6;
+  string tipo_votacao = 7;
+  int32 aprovacao = 8;
+  LegislativeProposicao proposicao = 9;
+  int32 votos_count = 10;
+  string source = 11;
+}
+
+// One deputy vote item in a roll-call.
+message NominalVoteRollCallEntry {
+  LegislativeDeputado deputado = 1;
+  string voto = 2;
+}
+
+// Aggregated vote tally.
+message VoteTally {
+  int32 favor = 1;
+  int32 contra = 2;
+  int32 abstencao = 3;
+  int32 obstrucao = 4;
+  int32 ausente = 5;
+  int32 outros = 6;
+}
+
+// Deputy-centric recent activity item.
+message DeputyVoteActivityItem {
+  string votacao_id = 1;
+  int64 data_hora_registro = 2 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+  string data_hora_registro_iso = 3;
+  string sigla_orgao = 4;
+  string tipo_votacao = 5;
+  string voto = 6;
+  string titulo = 7;
+  string source = 8;
+  LegislativeProposicao proposicao = 9;
+}
