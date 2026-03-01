@@ -37,6 +37,8 @@ import {
   OrefSirensPanel,
   TelegramIntelPanel,
   GulfEconomiesPanel,
+  SportsBrPanel,
+  CamaraNominalVotesPanel,
 } from '@/components';
 import { SatelliteFiresPanel } from '@/components/SatelliteFiresPanel';
 import { PositiveNewsFeedPanel } from '@/components/PositiveNewsFeedPanel';
@@ -59,6 +61,7 @@ import {
   SITE_VARIANT,
 } from '@/config';
 import { BETA_MODE } from '@/config/beta';
+import { SITE_BRAND_VARIANT } from '@/config/variant';
 import { t } from '@/services/i18n';
 import { getCurrentTheme } from '@/utils';
 import { trackCriticalBannerAction } from '@/services/analytics';
@@ -114,36 +117,45 @@ export class PanelLayoutManager implements AppModule {
         <div class="header-left">
           <div class="variant-switcher">${(() => {
             const local = this.ctx.isDesktopApp || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-            const vHref = (v: string, prod: string) => local || SITE_VARIANT === v ? '#' : prod;
-            const vTarget = (v: string) => !local && SITE_VARIANT !== v ? 'target="_blank" rel="noopener"' : '';
+            const vHref = (v: string, prod: string) => local || SITE_BRAND_VARIANT === v ? '#' : prod;
+            const vTarget = (v: string) => !local && SITE_BRAND_VARIANT !== v ? 'target="_blank" rel="noopener"' : '';
             return `
             <a href="${vHref('full', 'https://worldmonitor.app')}"
-               class="variant-option ${SITE_VARIANT === 'full' ? 'active' : ''}"
+               class="variant-option ${SITE_BRAND_VARIANT === 'full' ? 'active' : ''}"
                data-variant="full"
                ${vTarget('full')}
-               title="${t('header.world')}${SITE_VARIANT === 'full' ? ` ${t('common.currentVariant')}` : ''}">
+               title="${t('header.world')}${SITE_BRAND_VARIANT === 'full' ? ` ${t('common.currentVariant')}` : ''}">
               <span class="variant-icon">🌍</span>
               <span class="variant-label">${t('header.world')}</span>
             </a>
             <span class="variant-divider"></span>
             <a href="${vHref('tech', 'https://tech.worldmonitor.app')}"
-               class="variant-option ${SITE_VARIANT === 'tech' ? 'active' : ''}"
+               class="variant-option ${SITE_BRAND_VARIANT === 'tech' ? 'active' : ''}"
                data-variant="tech"
                ${vTarget('tech')}
-               title="${t('header.tech')}${SITE_VARIANT === 'tech' ? ` ${t('common.currentVariant')}` : ''}">
+               title="${t('header.tech')}${SITE_BRAND_VARIANT === 'tech' ? ` ${t('common.currentVariant')}` : ''}">
               <span class="variant-icon">💻</span>
               <span class="variant-label">${t('header.tech')}</span>
             </a>
             <span class="variant-divider"></span>
             <a href="${vHref('finance', 'https://finance.worldmonitor.app')}"
-               class="variant-option ${SITE_VARIANT === 'finance' ? 'active' : ''}"
+               class="variant-option ${SITE_BRAND_VARIANT === 'finance' ? 'active' : ''}"
                data-variant="finance"
                ${vTarget('finance')}
-               title="${t('header.finance')}${SITE_VARIANT === 'finance' ? ` ${t('common.currentVariant')}` : ''}">
+               title="${t('header.finance')}${SITE_BRAND_VARIANT === 'finance' ? ` ${t('common.currentVariant')}` : ''}">
               <span class="variant-icon">📈</span>
               <span class="variant-label">${t('header.finance')}</span>
             </a>
-            ${SITE_VARIANT === 'happy' ? `<span class="variant-divider"></span>
+            <span class="variant-divider"></span>
+            <a href="${vHref('br', 'https://br.worldmonitor.app')}"
+               class="variant-option ${SITE_BRAND_VARIANT === 'br' ? 'active' : ''}"
+               data-variant="br"
+               ${vTarget('br')}
+               title="BR Monitor${SITE_BRAND_VARIANT === 'br' ? ` ${t('common.currentVariant')}` : ''}">
+              <span class="variant-icon">🇧🇷</span>
+              <span class="variant-label">BR</span>
+            </a>
+            ${SITE_BRAND_VARIANT === 'happy' ? `<span class="variant-divider"></span>
             <a href="${vHref('happy', 'https://happy.worldmonitor.app')}"
                class="variant-option active"
                data-variant="happy"
@@ -153,7 +165,7 @@ export class PanelLayoutManager implements AppModule {
               <span class="variant-label">Good News</span>
             </a>` : ''}`;
           })()}</div>
-          <span class="logo">MONITOR</span><span class="version">v${__APP_VERSION__}</span>${BETA_MODE ? '<span class="beta-badge">BETA</span>' : ''}
+          <span class="logo">${SITE_BRAND_VARIANT === 'br' ? 'BR MONITOR' : 'MONITOR'}</span><span class="version">v${__APP_VERSION__}</span>${BETA_MODE ? '<span class="beta-badge">BETA</span>' : ''}
           <a href="https://x.com/eliehabib" target="_blank" rel="noopener" class="credit-link">
             <svg class="x-logo" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             <span class="credit-text">@eliehabib</span>
@@ -592,6 +604,14 @@ export class PanelLayoutManager implements AppModule {
       this.ctx.panels['macro-signals'] = new MacroSignalsPanel();
       this.ctx.panels['etf-flows'] = new ETFFlowsPanel();
       this.ctx.panels['stablecoins'] = new StablecoinPanel();
+
+      if (SITE_BRAND_VARIANT === 'br') {
+        const sportsBrPanel = new SportsBrPanel();
+        this.ctx.panels['esportes-br'] = sportsBrPanel;
+
+        const camaraNominalVotesPanel = new CamaraNominalVotesPanel();
+        this.ctx.panels['camara-votos-br'] = camaraNominalVotesPanel;
+      }
     }
 
     if (this.ctx.isDesktopApp) {

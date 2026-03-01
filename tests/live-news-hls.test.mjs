@@ -64,9 +64,10 @@ describe('DIRECT_HLS_MAP integrity', () => {
     }
   });
 
-  it('all HLS URLs end with .m3u8', () => {
+  it('all HLS URLs end with .m3u8 (optionally with querystring)', () => {
     for (const { id, url } of hlsMapEntries) {
-      assert.ok(url.endsWith('.m3u8'), `HLS URL for '${id}' does not end with .m3u8: ${url}`);
+      assert.match(url, /\.m3u8(?:\?.*)?$/,
+        `HLS URL for '${id}' must end with .m3u8 (query allowed): ${url}`);
     }
   });
 

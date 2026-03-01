@@ -1,5 +1,6 @@
 // Dynamic Meta Tags Service for World Monitor
 // Updates OG tags and Twitter Cards for shared stories
+import { SITE_BRAND_VARIANT } from '@/config/variant';
 
 interface StoryMeta {
   countryCode: string;
@@ -10,14 +11,56 @@ interface StoryMeta {
   type: 'ciianalysis' | 'crisisalert' | 'dailybrief' | 'marketfocus';
 }
 
-const BASE_URL = 'https://worldmonitor.app';
-const DEFAULT_IMAGE = 'https://worldmonitor.app/favico/og-image.png';
+const BRAND_META = {
+  full: {
+    baseUrl: 'https://worldmonitor.app',
+    siteName: 'World Monitor',
+    defaultTitle: 'World Monitor - Global Situation with AI Insights',
+    defaultDescription: 'AI-powered real-time global intelligence dashboard with live news, markets, military tracking, and geopolitical data.',
+  },
+  tech: {
+    baseUrl: 'https://tech.worldmonitor.app',
+    siteName: 'Tech Monitor',
+    defaultTitle: 'Tech Monitor - Real-Time AI & Tech Industry Dashboard',
+    defaultDescription: 'Real-time AI and technology dashboard tracking global tech, startups, and market-moving developments.',
+  },
+  finance: {
+    baseUrl: 'https://finance.worldmonitor.app',
+    siteName: 'Finance Monitor',
+    defaultTitle: 'Finance Monitor - Real-Time Markets & Trading Dashboard',
+    defaultDescription: 'Real-time finance and trading intelligence with markets, macro signals, and economic indicators.',
+  },
+  happy: {
+    baseUrl: 'https://happy.worldmonitor.app',
+    siteName: 'Happy Monitor',
+    defaultTitle: 'Happy Monitor - Good News & Global Progress',
+    defaultDescription: 'Curated positive news, progress metrics, and uplifting stories from around the world.',
+  },
+  br: {
+    baseUrl: 'https://br.worldmonitor.app',
+    siteName: 'BR Monitor',
+    defaultTitle: 'BR Monitor - Inteligencia em Tempo Real',
+    defaultDescription: 'Painel em tempo real com noticias, mercados e sinais globais com foco no Brasil.',
+  },
+} as const;
+
+type BrandMeta = {
+  baseUrl: string;
+  siteName: string;
+  defaultTitle: string;
+  defaultDescription: string;
+};
+
+const activeBrand: BrandMeta = BRAND_META[SITE_BRAND_VARIANT as keyof typeof BRAND_META] ?? BRAND_META.full;
+const BASE_URL = activeBrand.baseUrl;
+const FAVICO_PREFIX = SITE_BRAND_VARIANT === 'full' ? 'favico' : `favico/${SITE_BRAND_VARIANT}`;
+const DEFAULT_IMAGE = `${BASE_URL}/${FAVICO_PREFIX}/og-image.png`;
 
 export function updateMetaTagsForStory(meta: StoryMeta): void {
   const { countryCode, countryName, ciiScore, ciiLevel, trend, type } = meta;
   
   // Generate dynamic content
-  const title = `${countryName} Intelligence Brief | World Monitor`;
+  const title = `${countryName} Intelligence Brief | ${activeBrand.siteName}`;
   const description = generateDescription(ciiScore, ciiLevel, trend, type, countryName);
   const storyUrl = `${BASE_URL}/api/story?c=${countryCode}&t=${type}`;
   let imageUrl = `${BASE_URL}/api/og-story?c=${countryCode}&t=${type}`;
@@ -47,8 +90,8 @@ export function updateMetaTagsForStory(meta: StoryMeta): void {
 }
 
 export function resetMetaTags(): void {
-  const defaultTitle = 'World Monitor - Global Situation with AI Insights';
-  const defaultDesc = 'AI-powered real-time global intelligence dashboard with live news, markets, military tracking, and geopolitical data.';
+  const defaultTitle = activeBrand.defaultTitle;
+  const defaultDesc = activeBrand.defaultDescription;
   
   setMetaTag('title', defaultTitle);
   setMetaTag('description', defaultDesc);
@@ -94,7 +137,7 @@ function generateDescription(
     parts.push(typeDescriptions[type]);
   }
   
-  return `World Monitor ${parts.join('. ')}. Free, open-source geopolitical intelligence.`;
+  return `${activeBrand.siteName} ${parts.join('. ')}. Free, open-source geopolitical intelligence.`;
 }
 
 function setMetaTag(property: string, content: string): void {
@@ -141,7 +184,7 @@ export function parseStoryParams(url: URL): StoryMeta | null {
     IR: 'Iran', IL: 'Israel', TW: 'Taiwan', KP: 'North Korea',
     SA: 'Saudi Arabia', TR: 'Turkey', PL: 'Poland', DE: 'Germany',
     FR: 'France', GB: 'United Kingdom', IN: 'India', PK: 'Pakistan',
-    SY: 'Syria', YE: 'Yemen', MM: 'Myanmar', VE: 'Venezuela',
+    SY: 'Syria', YE: 'Yemen', MM: 'Myanmar', VE: 'Venezuela', BR: 'Brazil',
   };
   
   return {

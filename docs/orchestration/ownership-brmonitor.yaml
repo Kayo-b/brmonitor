@@ -1,55 +1,19 @@
 version: 1
-context: brmonitor_parallel_execution
+context: brmonitor_single_agent_execution
 
 branches:
   agent_a: feat/br-variant-base
-  agent_b: feat/br-sports-module
 
 owners:
   agent_a:
-    description: "Variant/core/branding/runtime"
+    description: "Single-agent ownership for the entire repository"
     files:
-      - src/config/variant.ts
-      - src/config/panels.ts
-      - src/config/feeds.ts
-      - src/components/DeckGLMap.ts
-      - src/components/Map.ts
-      - src/components/MapContainer.ts
-      - vite.config.ts
-      - src/main.ts
-      - src/services/runtime.ts
-      - src/services/meta-tags.ts
-      - src/services/story-share.ts
-      - src/components/index.ts
-      - src/locales/pt.json
-      - public/favico/**
-      - BRMONITOR.md
-      - docs/IMPLEMENTATION_ORCHESTRATION.md
+      - "**"
 
-  agent_b:
-    description: "Sports module and sports integrations"
-    files:
-      - src/components/SportsBrPanel.ts
-      - src/services/sports/**
-      - src/types/sports.ts
-      - src/config/sports-feeds.ts
-      - api/sports/**
-      - tests/sports-*.test.mjs
-      - tests/sports-*.test.mts
-
-shared_owner:
-  - file: src/config/panels.ts
-    owner: agent_a
-    reason: "high-conflict central registration file"
-  - file: src/components/index.ts
-    owner: agent_a
-    reason: "shared export barrel"
-  - file: src/locales/pt.json
-    owner: agent_a
-    reason: "single translation merge point"
+shared_owner: []
 
 handoff:
-  required_for_non_owned_files: true
+  required_for_non_owned_files: false
   request_template:
     fields:
       - from
@@ -61,8 +25,6 @@ handoff:
 
 integration_order:
   - merge: agent_a
-  - rebase: agent_b_on_main
-  - merge: agent_b
 
 quality_gates:
   commands:

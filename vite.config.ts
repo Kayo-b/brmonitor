@@ -141,10 +141,32 @@ const VARIANT_META: Record<string, {
       'Market radar signals',
     ],
   },
+  br: {
+    title: 'BR Monitor - Inteligencia Global em Tempo Real',
+    description: 'Painel em tempo real com noticias, mercados, inteligencia geopolitica e monitoramento global com foco no Brasil.',
+    keywords: 'brasil, noticias brasil, monitor geopolitico, painel de inteligencia, osint brasil, mercados globais, risco pais, america latina, monitor em tempo real',
+    url: 'https://br.worldmonitor.app/',
+    siteName: 'BR Monitor',
+    shortName: 'BRMonitor',
+    subject: 'Inteligencia Global em Tempo Real com Foco no Brasil',
+    classification: 'Painel de Inteligencia, Dashboard de Noticias, Monitor Geopolitico',
+    categories: ['news', 'business'],
+    features: [
+      'Noticiario global com foco no Brasil',
+      'Monitoramento de mercados',
+      'Sinais geopoliticos em tempo real',
+      'Cobertura da America Latina',
+      'Rastreamento de infraestrutura critica',
+      'Visao consolidada para decisao',
+    ],
+  },
 };
 
 const activeVariant = process.env.VITE_VARIANT || 'full';
 const activeMeta = VARIANT_META[activeVariant] || VARIANT_META.full;
+const favicoBasePath = activeVariant === 'full' ? '/favico' : `/favico/${activeVariant}`;
+const manifestThemeColor = activeVariant === 'happy' ? '#FAFAF5' : '#0a0f0a';
+const manifestBackgroundColor = activeVariant === 'happy' ? '#FAFAF5' : '#0a0f0a';
 
 function htmlVariantPlugin(): Plugin {
   return {
@@ -680,9 +702,9 @@ export default defineConfig({
       injectRegister: false,
 
       includeAssets: [
-        'favico/favicon.ico',
-        'favico/apple-touch-icon.png',
-        'favico/favicon-32x32.png',
+        `${favicoBasePath.slice(1)}/favicon.ico`,
+        `${favicoBasePath.slice(1)}/apple-touch-icon.png`,
+        `${favicoBasePath.slice(1)}/favicon-32x32.png`,
       ],
 
       manifest: {
@@ -693,13 +715,13 @@ export default defineConfig({
         scope: '/',
         display: 'standalone',
         orientation: 'any',
-        theme_color: '#0a0f0a',
-        background_color: '#0a0f0a',
+        theme_color: manifestThemeColor,
+        background_color: manifestBackgroundColor,
         categories: activeMeta.categories,
         icons: [
-          { src: '/favico/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/favico/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/favico/android-chrome-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: `${favicoBasePath}/android-chrome-192x192.png`, sizes: '192x192', type: 'image/png' },
+          { src: `${favicoBasePath}/android-chrome-512x512.png`, sizes: '512x512', type: 'image/png' },
+          { src: `${favicoBasePath}/android-chrome-512x512.png`, sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
 

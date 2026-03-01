@@ -3,9 +3,11 @@ const KEYED_CLOUD_API_PATTERN = /^\/api\/(?:[^/]+\/v1\/|bootstrap(?:\?|$)|rss-pr
 
 const DEFAULT_REMOTE_HOSTS: Record<string, string> = {
   tech: WS_API_URL,
+  finance: WS_API_URL,
   full: WS_API_URL,
   world: WS_API_URL,
   happy: WS_API_URL,
+  br: WS_API_URL,
 };
 
 const DEFAULT_LOCAL_API_PORT = 46123;
@@ -118,7 +120,20 @@ export function getRemoteApiBaseUrl(): string {
   if (fromHosts) return fromHosts;
 
   // Desktop builds may not set VITE_WS_API_URL; default to production.
-  if (isDesktopRuntime()) return 'https://worldmonitor.app';
+  if (isDesktopRuntime()) {
+    const fallbackByVariant = {
+      full: 'https://worldmonitor.app',
+      world: 'https://worldmonitor.app',
+      tech: 'https://tech.worldmonitor.app',
+      finance: 'https://finance.worldmonitor.app',
+      happy: 'https://happy.worldmonitor.app',
+      br: 'https://br.worldmonitor.app',
+    } as const;
+    if (variant in fallbackByVariant) {
+      return fallbackByVariant[variant as keyof typeof fallbackByVariant];
+    }
+    return fallbackByVariant.full;
+  }
   return '';
 }
 
@@ -148,6 +163,9 @@ const APP_HOSTS = new Set([
   'worldmonitor.app',
   'www.worldmonitor.app',
   'tech.worldmonitor.app',
+  'finance.worldmonitor.app',
+  'happy.worldmonitor.app',
+  'br.worldmonitor.app',
   'api.worldmonitor.app',
   'localhost',
   '127.0.0.1',
