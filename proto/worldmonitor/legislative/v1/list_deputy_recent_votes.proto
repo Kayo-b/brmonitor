@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package worldmonitor.legislative.v1;
+
+import "sebuf/http/annotations.proto";
+import "worldmonitor/legislative/v1/nominal_vote.proto";
+
+message ListDeputyRecentVotesRequest {
+  int64 deputado_id = 1 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER, (sebuf.http.query) = { name: "deputado_id" }];
+  int32 limit = 2 [(sebuf.http.query) = { name: "limit" }];
+  int32 offset = 3 [(sebuf.http.query) = { name: "offset" }];
+  int32 scan_pages = 4 [(sebuf.http.query) = { name: "scan_pages" }];
+  int32 dias = 5 [(sebuf.http.query) = { name: "dias" }];
+}
+
+message ListDeputyRecentVotesResponse {
+  repeated DeputyVoteActivityItem items = 1;
+  int32 total = 2;
+  string source = 3;
+  int64 generated_at = 4 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+}

@@ -56,6 +56,8 @@ import { createTradeServiceRoutes } from '../../../src/generated/server/worldmon
 import { tradeHandler } from '../../../server/worldmonitor/trade/v1/handler';
 import { createSupplyChainServiceRoutes } from '../../../src/generated/server/worldmonitor/supply_chain/v1/service_server';
 import { supplyChainHandler } from '../../../server/worldmonitor/supply-chain/v1/handler';
+import { createLegislativeServiceRoutes } from '../../../src/generated/server/worldmonitor/legislative/v1/service_server';
+import { legislativeHandler } from '../../../server/worldmonitor/legislative/v1/handler';
 
 import type { ServerOptions } from '../../../src/generated/server/worldmonitor/seismology/v1/service_server';
 
@@ -77,8 +79,8 @@ const RPC_CACHE_TIER: Record<string, CacheTier> = {
   '/api/market/v1/list-crypto-quotes': 'medium',
   '/api/market/v1/list-commodity-quotes': 'medium',
   '/api/market/v1/list-stablecoin-markets': 'medium',
-  '/api/market/v1/get-sector-summary': 'medium',
   '/api/market/v1/list-gulf-quotes': 'medium',
+  '/api/market/v1/get-sector-summary': 'medium',
   '/api/infrastructure/v1/list-service-statuses': 'slow',
   '/api/seismology/v1/list-earthquakes': 'slow',
   '/api/infrastructure/v1/list-internet-outages': 'slow',
@@ -104,6 +106,7 @@ const RPC_CACHE_TIER: Record<string, CacheTier> = {
   '/api/research/v1/list-tech-events': 'static',
   '/api/military/v1/get-usni-fleet-report': 'static',
   '/api/conflict/v1/list-ucdp-events': 'static',
+  '/api/conflict/v1/list-iran-events': 'static',
   '/api/conflict/v1/get-humanitarian-summary': 'static',
   '/api/displacement/v1/get-displacement-summary': 'static',
   '/api/displacement/v1/get-population-exposure': 'static',
@@ -134,6 +137,9 @@ const RPC_CACHE_TIER: Record<string, CacheTier> = {
   '/api/prediction/v1/list-prediction-markets': 'medium',
   '/api/supply-chain/v1/get-chokepoint-status': 'medium',
   '/api/news/v1/list-feed-digest': 'slow',
+  '/api/legislative/v1/list-recent-nominal-votes': 'fast',
+  '/api/legislative/v1/get-nominal-vote-roll-call': 'medium',
+  '/api/legislative/v1/list-deputy-recent-votes': 'medium',
 };
 
 const serverOptions: ServerOptions = { onError: mapErrorToResponse };
@@ -160,6 +166,7 @@ const allRoutes = [
   ...createGivingServiceRoutes(givingHandler, serverOptions),
   ...createTradeServiceRoutes(tradeHandler, serverOptions),
   ...createSupplyChainServiceRoutes(supplyChainHandler, serverOptions),
+  ...createLegislativeServiceRoutes(legislativeHandler, serverOptions),
 ];
 
 const router = createRouter(allRoutes);

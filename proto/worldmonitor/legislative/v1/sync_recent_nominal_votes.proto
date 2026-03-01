@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package worldmonitor.legislative.v1;
+
+import "sebuf/http/annotations.proto";
+
+message SyncRecentNominalVotesRequest {
+  int32 dias = 1 [(sebuf.http.query) = { name: "dias" }];
+  int32 max_votacoes = 2 [(sebuf.http.query) = { name: "max_votacoes" }];
+  bool include_roll_calls = 3 [(sebuf.http.query) = { name: "include_roll_calls" }];
+}
+
+message SyncRecentNominalVotesResponse {
+  bool ok = 1;
+  int32 votacoes_sincronizadas = 2;
+  int32 roll_calls_sincronizados = 3;
+  int32 erros = 4;
+  string source = 5;
+  int64 generated_at = 6 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+}

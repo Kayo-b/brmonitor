@@ -1,0 +1,462 @@
+openapi: 3.1.0
+info:
+    title: LegislativeService API
+    version: 1.0.0
+paths:
+    /api/legislative/v1/list-recent-nominal-votes:
+        get:
+            tags:
+                - LegislativeService
+            summary: ListRecentNominalVotes
+            description: List recent nominal voting sessions from Camara.
+            operationId: ListRecentNominalVotes
+            parameters:
+                - name: dias
+                  in: query
+                  required: false
+                  schema:
+                    type: integer
+                    format: int32
+                - name: limit
+                  in: query
+                  required: false
+                  schema:
+                    type: integer
+                    format: int32
+                - name: offset
+                  in: query
+                  required: false
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListRecentNominalVotesResponse'
+                "400":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationError'
+                default:
+                    description: Error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /api/legislative/v1/get-nominal-vote-roll-call:
+        get:
+            tags:
+                - LegislativeService
+            summary: GetNominalVoteRollCall
+            description: Get full roll-call votes for one nominal voting session.
+            operationId: GetNominalVoteRollCall
+            parameters:
+                - name: votacao_id
+                  in: query
+                  required: false
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetNominalVoteRollCallResponse'
+                "400":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationError'
+                default:
+                    description: Error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /api/legislative/v1/list-deputy-recent-votes:
+        get:
+            tags:
+                - LegislativeService
+            summary: ListDeputyRecentVotes
+            description: List recent vote activity for one deputy.
+            operationId: ListDeputyRecentVotes
+            parameters:
+                - name: deputado_id
+                  in: query
+                  required: false
+                  schema:
+                    type: string
+                    format: int64
+                - name: limit
+                  in: query
+                  required: false
+                  schema:
+                    type: integer
+                    format: int32
+                - name: offset
+                  in: query
+                  required: false
+                  schema:
+                    type: integer
+                    format: int32
+                - name: scan_pages
+                  in: query
+                  required: false
+                  schema:
+                    type: integer
+                    format: int32
+                - name: dias
+                  in: query
+                  required: false
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListDeputyRecentVotesResponse'
+                "400":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationError'
+                default:
+                    description: Error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /api/legislative/v1/sync-recent-nominal-votes:
+        post:
+            tags:
+                - LegislativeService
+            summary: SyncRecentNominalVotes
+            description: Trigger a short sync/warmup cycle for recent nominal votes.
+            operationId: SyncRecentNominalVotes
+            parameters:
+                - name: dias
+                  in: query
+                  required: false
+                  schema:
+                    type: integer
+                    format: int32
+                - name: max_votacoes
+                  in: query
+                  required: false
+                  schema:
+                    type: integer
+                    format: int32
+                - name: include_roll_calls
+                  in: query
+                  required: false
+                  schema:
+                    type: boolean
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SyncRecentNominalVotesRequest'
+                required: true
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SyncRecentNominalVotesResponse'
+                "400":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationError'
+                default:
+                    description: Error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+components:
+    schemas:
+        Error:
+            type: object
+            properties:
+                message:
+                    type: string
+                    description: Error message (e.g., 'user not found', 'database connection failed')
+            description: Error is returned when a handler encounters an error. It contains a simple error message that the developer can customize.
+        FieldViolation:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: The field path that failed validation (e.g., 'user.email' for nested fields). For header validation, this will be the header name (e.g., 'X-API-Key')
+                description:
+                    type: string
+                    description: Human-readable description of the validation violation (e.g., 'must be a valid email address', 'required field missing')
+            required:
+                - field
+                - description
+            description: FieldViolation describes a single validation error for a specific field.
+        ValidationError:
+            type: object
+            properties:
+                violations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/FieldViolation'
+                    description: List of validation violations
+            required:
+                - violations
+            description: ValidationError is returned when request validation fails. It contains a list of field violations describing what went wrong.
+        ListRecentNominalVotesRequest:
+            type: object
+            properties:
+                dias:
+                    type: integer
+                    format: int32
+                limit:
+                    type: integer
+                    format: int32
+                offset:
+                    type: integer
+                    format: int32
+        ListRecentNominalVotesResponse:
+            type: object
+            properties:
+                votacoes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NominalVoteSession'
+                total:
+                    type: integer
+                    format: int32
+                source:
+                    type: string
+                generatedAt:
+                    type: integer
+                    format: int64
+                    description: 'Warning: Values > 2^53 may lose precision in JavaScript'
+        NominalVoteSession:
+            type: object
+            properties:
+                votacaoId:
+                    type: string
+                dataHoraRegistro:
+                    type: integer
+                    format: int64
+                    description: 'Warning: Values > 2^53 may lose precision in JavaScript'
+                dataHoraRegistroIso:
+                    type: string
+                siglaOrgao:
+                    type: string
+                descricao:
+                    type: string
+                resultado:
+                    type: string
+                tipoVotacao:
+                    type: string
+                aprovacao:
+                    type: integer
+                    format: int32
+                proposicao:
+                    $ref: '#/components/schemas/LegislativeProposicao'
+                votosCount:
+                    type: integer
+                    format: int32
+                source:
+                    type: string
+            description: Normalized nominal voting session.
+        LegislativeProposicao:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                    description: 'Warning: Values > 2^53 may lose precision in JavaScript'
+                codigo:
+                    type: string
+                siglaTipo:
+                    type: string
+                numero:
+                    type: string
+                ano:
+                    type: integer
+                    format: int32
+                ementa:
+                    type: string
+                uri:
+                    type: string
+            description: Minimal proposicao payload associated with a Camara votacao.
+        GetNominalVoteRollCallRequest:
+            type: object
+            properties:
+                votacaoId:
+                    type: string
+        GetNominalVoteRollCallResponse:
+            type: object
+            properties:
+                votacaoId:
+                    type: string
+                votos:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NominalVoteRollCallEntry'
+                tally:
+                    $ref: '#/components/schemas/VoteTally'
+                total:
+                    type: integer
+                    format: int32
+                source:
+                    type: string
+                generatedAt:
+                    type: integer
+                    format: int64
+                    description: 'Warning: Values > 2^53 may lose precision in JavaScript'
+        NominalVoteRollCallEntry:
+            type: object
+            properties:
+                deputado:
+                    $ref: '#/components/schemas/LegislativeDeputado'
+                voto:
+                    type: string
+            description: One deputy vote item in a roll-call.
+        LegislativeDeputado:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                    description: 'Warning: Values > 2^53 may lose precision in JavaScript'
+                nome:
+                    type: string
+                siglaPartido:
+                    type: string
+                siglaUf:
+                    type: string
+                uri:
+                    type: string
+            description: Minimal deputado payload associated with a nominal vote.
+        VoteTally:
+            type: object
+            properties:
+                favor:
+                    type: integer
+                    format: int32
+                contra:
+                    type: integer
+                    format: int32
+                abstencao:
+                    type: integer
+                    format: int32
+                obstrucao:
+                    type: integer
+                    format: int32
+                ausente:
+                    type: integer
+                    format: int32
+                outros:
+                    type: integer
+                    format: int32
+            description: Aggregated vote tally.
+        ListDeputyRecentVotesRequest:
+            type: object
+            properties:
+                deputadoId:
+                    type: integer
+                    format: int64
+                    description: 'Warning: Values > 2^53 may lose precision in JavaScript'
+                limit:
+                    type: integer
+                    format: int32
+                offset:
+                    type: integer
+                    format: int32
+                scanPages:
+                    type: integer
+                    format: int32
+                dias:
+                    type: integer
+                    format: int32
+        ListDeputyRecentVotesResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/DeputyVoteActivityItem'
+                total:
+                    type: integer
+                    format: int32
+                source:
+                    type: string
+                generatedAt:
+                    type: integer
+                    format: int64
+                    description: 'Warning: Values > 2^53 may lose precision in JavaScript'
+        DeputyVoteActivityItem:
+            type: object
+            properties:
+                votacaoId:
+                    type: string
+                dataHoraRegistro:
+                    type: integer
+                    format: int64
+                    description: 'Warning: Values > 2^53 may lose precision in JavaScript'
+                dataHoraRegistroIso:
+                    type: string
+                siglaOrgao:
+                    type: string
+                tipoVotacao:
+                    type: string
+                voto:
+                    type: string
+                titulo:
+                    type: string
+                source:
+                    type: string
+                proposicao:
+                    $ref: '#/components/schemas/LegislativeProposicao'
+            description: Deputy-centric recent activity item.
+        SyncRecentNominalVotesRequest:
+            type: object
+            properties:
+                dias:
+                    type: integer
+                    format: int32
+                maxVotacoes:
+                    type: integer
+                    format: int32
+                includeRollCalls:
+                    type: boolean
+        SyncRecentNominalVotesResponse:
+            type: object
+            properties:
+                ok:
+                    type: boolean
+                votacoesSincronizadas:
+                    type: integer
+                    format: int32
+                rollCallsSincronizados:
+                    type: integer
+                    format: int32
+                erros:
+                    type: integer
+                    format: int32
+                source:
+                    type: string
+                generatedAt:
+                    type: integer
+                    format: int64
+                    description: 'Warning: Values > 2^53 may lose precision in JavaScript'

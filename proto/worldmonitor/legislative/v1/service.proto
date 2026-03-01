@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package worldmonitor.legislative.v1;
+
+import "sebuf/http/annotations.proto";
+import "worldmonitor/legislative/v1/list_recent_nominal_votes.proto";
+import "worldmonitor/legislative/v1/get_nominal_vote_roll_call.proto";
+import "worldmonitor/legislative/v1/list_deputy_recent_votes.proto";
+import "worldmonitor/legislative/v1/sync_recent_nominal_votes.proto";
+
+// LegislativeService provides Camara dos Deputados nominal vote ingestion and query APIs.
+service LegislativeService {
+  option (sebuf.http.service_config) = {base_path: "/api/legislative/v1"};
+
+  // List recent nominal voting sessions from Camara.
+  rpc ListRecentNominalVotes(ListRecentNominalVotesRequest) returns (ListRecentNominalVotesResponse) {
+    option (sebuf.http.config) = {path: "/list-recent-nominal-votes", method: HTTP_METHOD_GET};
+  }
+
+  // Get full roll-call votes for one nominal voting session.
+  rpc GetNominalVoteRollCall(GetNominalVoteRollCallRequest) returns (GetNominalVoteRollCallResponse) {
+    option (sebuf.http.config) = {path: "/get-nominal-vote-roll-call", method: HTTP_METHOD_GET};
+  }
+
+  // List recent vote activity for one deputy.
+  rpc ListDeputyRecentVotes(ListDeputyRecentVotesRequest) returns (ListDeputyRecentVotesResponse) {
+    option (sebuf.http.config) = {path: "/list-deputy-recent-votes", method: HTTP_METHOD_GET};
+  }
+
+  // Trigger a short sync/warmup cycle for recent nominal votes.
+  rpc SyncRecentNominalVotes(SyncRecentNominalVotesRequest) returns (SyncRecentNominalVotesResponse) {
+    option (sebuf.http.config) = {path: "/sync-recent-nominal-votes", method: HTTP_METHOD_POST};
+  }
+}

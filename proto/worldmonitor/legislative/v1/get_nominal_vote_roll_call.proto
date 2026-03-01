@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package worldmonitor.legislative.v1;
+
+import "sebuf/http/annotations.proto";
+import "worldmonitor/legislative/v1/nominal_vote.proto";
+
+message GetNominalVoteRollCallRequest {
+  string votacao_id = 1 [(sebuf.http.query) = { name: "votacao_id" }];
+}
+
+message GetNominalVoteRollCallResponse {
+  string votacao_id = 1;
+  repeated NominalVoteRollCallEntry votos = 2;
+  VoteTally tally = 3;
+  int32 total = 4;
+  string source = 5;
+  int64 generated_at = 6 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+}
