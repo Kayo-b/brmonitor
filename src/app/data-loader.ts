@@ -11,6 +11,7 @@ import {
   SITE_VARIANT,
   LAYER_TO_SOURCE,
 } from '@/config';
+import { SITE_BRAND_VARIANT } from '@/config/variant';
 import { INTEL_HOTSPOTS, CONFLICT_ZONES } from '@/config/geo';
 import { tokenizeForMatch, matchKeyword } from '@/utils/keyword-match';
 import {
@@ -76,6 +77,7 @@ import { fetchSecurityAdvisories } from '@/services/security-advisories';
 import { fetchTelegramFeed } from '@/services/telegram-intel';
 import { fetchOrefAlerts, startOrefPolling, stopOrefPolling, onOrefAlertsUpdate } from '@/services/oref-alerts';
 import { enrichEventsWithExposure } from '@/services/population-exposure';
+import { fetchRecentNominalVotes } from '@/services/legislative';
 import { debounce, getCircuitBreakerCooldownInfo } from '@/utils';
 import { isFeatureAvailable, isFeatureEnabled } from '@/services/runtime-config';
 import { getAiFlowSettings } from '@/services/ai-flow-settings';
@@ -108,6 +110,7 @@ import {
   TradePolicyPanel,
   SupplyChainPanel,
   SecurityAdvisoriesPanel,
+  CamaraNominalVotesPanel,
   OrefSirensPanel,
   TelegramIntelPanel,
 } from '@/components';
@@ -206,7 +209,7 @@ export class DataLoaderManager implements AppModule {
 
     try {
       const resp = await fetch(
-        `/api/news/v1/list-feed-digest?variant=${SITE_VARIANT}&lang=${getCurrentLanguage()}`,
+        `/api/news/v1/list-feed-digest?variant=${SITE_BRAND_VARIANT}&lang=${getCurrentLanguage()}`,
         { signal: AbortSignal.timeout(this.digestRequestTimeoutMs) },
       );
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -293,6 +296,10 @@ export class DataLoaderManager implements AppModule {
         tasks.push({ name: 'tradePolicy', task: runGuarded('tradePolicy', () => this.loadTradePolicy()) });
         tasks.push({ name: 'supplyChain', task: runGuarded('supplyChain', () => this.loadSupplyChain()) });
       }
+    }
+
+    if (this.ctx.panels['camara-votos-br']) {
+      tasks.push({ name: 'camaraVotesBr', task: runGuarded('camaraVotesBr', () => this.loadCamaraNominalVotes()) });
     }
 
     // Progress charts data (happy variant only)
@@ -2238,6 +2245,19 @@ export class DataLoaderManager implements AppModule {
       (this.ctx.panels['telegram-intel'] as TelegramIntelPanel)?.setData(result);
     } catch (error) {
       console.error('[App] Telegram intel fetch failed:', error);
+    }
+  }
+
+  async loadCamaraNominalVotes(): Promise<void> {
+    const panel = this.ctx.panels['camara-votos-br'] as CamaraNominalVotesPanel | undefined;
+    if (!panel) return;
+
+    try {
+      const result = await fetchRecentNominalVotes(7, 30, 0);
+      panel.setSessions(result.sessions);
+    } catch (error) {
+      panel.showError('Falha ao carregar votacoes nominais');
+      console.error('[App] Camara nominal votes fetch failed:', error);
     }
   }
 }

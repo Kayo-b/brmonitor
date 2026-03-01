@@ -1,6 +1,6 @@
 import type { PanelConfig, MapLayers } from '@/types';
 import type { DataSourceId } from '@/services/data-freshness';
-import { SITE_VARIANT } from './variant';
+import { SITE_BRAND_VARIANT } from './variant';
 
 // ============================================
 // FULL VARIANT (Geopolitical)
@@ -156,6 +156,27 @@ const FULL_MOBILE_MAP_LAYERS: MapLayers = {
   renewableInstallations: false,
   tradeRoutes: false,
   dayNight: false,
+};
+
+// ============================================
+// BR VARIANT (Brazil-focused, full runtime core)
+// ============================================
+const BR_PANELS: Record<string, PanelConfig> = {
+  ...FULL_PANELS,
+  map: { name: 'Mapa Brasil & Mundo', enabled: true, priority: 1 },
+  'live-news': { name: 'Noticias em Tempo Real', enabled: true, priority: 1 },
+  insights: { name: 'Insights com IA', enabled: true, priority: 1 },
+  latam: { name: 'America Latina', enabled: true, priority: 1 },
+  'esportes-br': { name: 'Esportes BR', enabled: true, priority: 1 },
+  'camara-votos-br': { name: 'Camara - Votos Nominais', enabled: true, priority: 1 },
+};
+
+const BR_MAP_LAYERS: MapLayers = {
+  ...FULL_MAP_LAYERS,
+};
+
+const BR_MOBILE_MAP_LAYERS: MapLayers = {
+  ...FULL_MOBILE_MAP_LAYERS,
 };
 
 // ============================================
@@ -561,9 +582,33 @@ const HAPPY_MOBILE_MAP_LAYERS: MapLayers = {
 // ============================================
 // VARIANT-AWARE EXPORTS
 // ============================================
-export const DEFAULT_PANELS = SITE_VARIANT === 'happy' ? HAPPY_PANELS : SITE_VARIANT === 'tech' ? TECH_PANELS : SITE_VARIANT === 'finance' ? FINANCE_PANELS : FULL_PANELS;
-export const DEFAULT_MAP_LAYERS = SITE_VARIANT === 'happy' ? HAPPY_MAP_LAYERS : SITE_VARIANT === 'tech' ? TECH_MAP_LAYERS : SITE_VARIANT === 'finance' ? FINANCE_MAP_LAYERS : FULL_MAP_LAYERS;
-export const MOBILE_DEFAULT_MAP_LAYERS = SITE_VARIANT === 'happy' ? HAPPY_MOBILE_MAP_LAYERS : SITE_VARIANT === 'tech' ? TECH_MOBILE_MAP_LAYERS : SITE_VARIANT === 'finance' ? FINANCE_MOBILE_MAP_LAYERS : FULL_MOBILE_MAP_LAYERS;
+export const DEFAULT_PANELS = SITE_BRAND_VARIANT === 'br'
+  ? BR_PANELS
+  : SITE_BRAND_VARIANT === 'happy'
+    ? HAPPY_PANELS
+    : SITE_BRAND_VARIANT === 'tech'
+      ? TECH_PANELS
+      : SITE_BRAND_VARIANT === 'finance'
+        ? FINANCE_PANELS
+        : FULL_PANELS;
+export const DEFAULT_MAP_LAYERS = SITE_BRAND_VARIANT === 'br'
+  ? BR_MAP_LAYERS
+  : SITE_BRAND_VARIANT === 'happy'
+    ? HAPPY_MAP_LAYERS
+    : SITE_BRAND_VARIANT === 'tech'
+      ? TECH_MAP_LAYERS
+      : SITE_BRAND_VARIANT === 'finance'
+        ? FINANCE_MAP_LAYERS
+        : FULL_MAP_LAYERS;
+export const MOBILE_DEFAULT_MAP_LAYERS = SITE_BRAND_VARIANT === 'br'
+  ? BR_MOBILE_MAP_LAYERS
+  : SITE_BRAND_VARIANT === 'happy'
+    ? HAPPY_MOBILE_MAP_LAYERS
+    : SITE_BRAND_VARIANT === 'tech'
+      ? TECH_MOBILE_MAP_LAYERS
+      : SITE_BRAND_VARIANT === 'finance'
+        ? FINANCE_MOBILE_MAP_LAYERS
+        : FULL_MOBILE_MAP_LAYERS;
 
 /** Maps map-layer toggle keys to their data-freshness source IDs (single source of truth). */
 export const LAYER_TO_SOURCE: Partial<Record<keyof MapLayers, DataSourceId[]>> = {

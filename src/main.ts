@@ -11,7 +11,7 @@ const sentryDsn = import.meta.env.VITE_SENTRY_DSN?.trim();
 Sentry.init({
   dsn: sentryDsn || undefined,
   release: `worldmonitor@${__APP_VERSION__}`,
-  environment: location.hostname === 'worldmonitor.app' ? 'production'
+  environment: (location.hostname === 'worldmonitor.app' || location.hostname.endsWith('.worldmonitor.app')) ? 'production'
     : location.hostname.includes('vercel.app') ? 'preview'
     : 'development',
   enabled: Boolean(sentryDsn) && !location.hostname.startsWith('localhost') && !('__TAURI_INTERNALS__' in window),
@@ -169,7 +169,7 @@ import { initMetaTags } from '@/services/meta-tags';
 import { installRuntimeFetchPatch, installWebApiRedirect } from '@/services/runtime';
 import { loadDesktopSecrets } from '@/services/runtime-config';
 import { applyStoredTheme } from '@/utils/theme-manager';
-import { SITE_VARIANT } from '@/config/variant';
+import { SITE_BRAND_VARIANT } from '@/config/variant';
 import { clearChunkReloadGuard, installChunkReloadGuard } from '@/bootstrap/chunk-reload';
 
 // Auto-reload on stale chunk 404s after deployment (Vite fires this for modulepreload failures).
@@ -192,8 +192,8 @@ applyStoredTheme();
 
 // Set data-variant on <html> so CSS theme overrides activate (inline script handles hostname/localStorage,
 // this catches the VITE_VARIANT env var path used during local dev and Vercel deployments)
-if (SITE_VARIANT && SITE_VARIANT !== 'full') {
-  document.documentElement.dataset.variant = SITE_VARIANT;
+if (SITE_BRAND_VARIANT && SITE_BRAND_VARIANT !== 'full') {
+  document.documentElement.dataset.variant = SITE_BRAND_VARIANT;
 }
 
 // Remove no-transition class after first paint to enable smooth theme transitions

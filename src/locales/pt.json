@@ -65,7 +65,9 @@
     "liveWebcams": "Câmeras ao Vivo",
     "securityAdvisories": "Alertas de Segurança",
     "orefSirens": "Israel Sirens",
-    "telegramIntel": "Inteligência Telegram"
+    "telegramIntel": "Inteligência Telegram",
+    "esportesBr": "Esportes BR",
+    "camaraVotosBr": "Camara - Votos Nominais"
   },
   "modals": {
     "search": {

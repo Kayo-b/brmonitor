@@ -46,3 +46,5 @@ export * from './OrefSirensPanel';
 export * from './TelegramIntelPanel';
 export * from './BreakingNewsBanner';
 export * from './GulfEconomiesPanel';
+export * from './SportsBrPanel';
+export * from './CamaraNominalVotesPanel';

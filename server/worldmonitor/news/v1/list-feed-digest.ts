@@ -13,13 +13,40 @@ import { classifyByKeyword, type ThreatLevel } from './_classifier';
 
 declare const process: { env: Record<string, string | undefined> };
 
-const VALID_VARIANTS = new Set(['full', 'tech', 'finance', 'happy']);
+const VALID_VARIANTS = new Set(['full', 'tech', 'finance', 'happy', 'br']);
 const fallbackDigestCache = new Map<string, { data: ListFeedDigestResponse; ts: number }>();
 const ITEMS_PER_FEED = 5;
 const MAX_ITEMS_PER_CATEGORY = 20;
 const FEED_TIMEOUT_MS = 8_000;
 const OVERALL_DEADLINE_MS = 25_000;
 const BATCH_CONCURRENCY = 20;
+
+const brGn = (q: string) =>
+  `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+
+const BR_FEED_OVERRIDES: Record<string, ServerFeed[]> = {
+  politics: [
+    { name: 'O Globo', url: brGn('site:oglobo.globo.com when:1d') },
+    { name: 'Folha de S.Paulo', url: 'https://feeds.folha.uol.com.br/emcimadahora/rss091.xml' },
+    { name: 'Brasil Paralelo', url: 'https://www.brasilparalelo.com.br/noticias/rss.xml' },
+    { name: 'BBC World', url: 'https://feeds.bbci.co.uk/news/world/rss.xml' },
+    { name: 'Reuters World', url: brGn('site:reuters.com world') },
+  ],
+  latam: [
+    { name: 'O Globo', url: brGn('site:oglobo.globo.com when:1d') },
+    { name: 'Folha de S.Paulo', url: 'https://feeds.folha.uol.com.br/emcimadahora/rss091.xml' },
+    { name: 'Brasil Paralelo', url: 'https://www.brasilparalelo.com.br/noticias/rss.xml' },
+    { name: 'BBC Latin America', url: 'https://feeds.bbci.co.uk/news/world/latin_america/rss.xml' },
+    { name: 'Reuters LatAm', url: brGn('site:reuters.com (Brazil OR Mexico OR Argentina) when:3d') },
+  ],
+  markets: [
+    { name: 'MarketWatch', url: brGn('site:marketwatch.com markets when:1d') },
+    { name: 'Yahoo Finance', url: 'https://finance.yahoo.com/news/rssindex' },
+    { name: 'CNBC', url: 'https://www.cnbc.com/id/100003114/device/rss/rss.html' },
+    { name: 'Reuters Business', url: brGn('site:reuters.com business markets') },
+    { name: 'Financial Times', url: 'https://www.ft.com/rss/home' },
+  ],
+};
 
 const LEVEL_TO_PROTO: Record<ThreatLevel, ProtoThreatLevel> = {
   critical: 'THREAT_LEVEL_CRITICAL',
@@ -183,7 +210,8 @@ export async function listFeedDigest(
   _ctx: ServerContext,
   req: ListFeedDigestRequest,
 ): Promise<ListFeedDigestResponse> {
-  const variant = VALID_VARIANTS.has(req.variant) ? req.variant : 'full';
+  const requestedVariant = (req.variant || '').toLowerCase();
+  const variant = VALID_VARIANTS.has(requestedVariant) ? requestedVariant : 'full';
   const lang = req.lang || 'en';
 
   const digestCacheKey = `news:digest:v1:${variant}:${lang}`;
@@ -204,7 +232,9 @@ export async function listFeedDigest(
 }
 
 async function buildDigest(variant: string, lang: string): Promise<ListFeedDigestResponse> {
-  const feedsByCategory = VARIANT_FEEDS[variant] ?? {};
+  const feedsByCategory = variant === 'br'
+    ? { ...(VARIANT_FEEDS.full ?? {}), ...BR_FEED_OVERRIDES }
+    : (VARIANT_FEEDS[variant] ?? {});
   const feedStatuses: Record<string, string> = {};
   const categories: Record<string, CategoryBucket> = {};
 
@@ -221,7 +251,7 @@ async function buildDigest(variant: string, lang: string): Promise<ListFeedDiges
       }
     }
 
-    if (variant === 'full') {
+    if (variant === 'full' || variant === 'br') {
       const filteredIntel = INTEL_SOURCES.filter(f => !f.lang || f.lang === lang);
       for (const feed of filteredIntel) {
         allEntries.push({ category: 'intel', feed });

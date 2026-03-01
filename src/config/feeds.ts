@@ -1,5 +1,5 @@
 import type { Feed } from '@/types';
-import { SITE_VARIANT } from './variant';
+import { SITE_BRAND_VARIANT } from './variant';
 
 // Helper to create RSS proxy URL (Vercel)
 const rss = (url: string) => `/api/rss-proxy?url=${encodeURIComponent(url)}`;
@@ -62,6 +62,8 @@ export const SOURCE_TIERS: Record<string, number> = {
   'OpenAI News': 3,
   // Portuguese
   'Brasil Paralelo': 2,
+  'O Globo': 2,
+  'Folha de S.Paulo': 2,
 
   // Tier 1 - Official Government & International Orgs
   'White House': 1,
@@ -333,6 +335,8 @@ export const SOURCE_TYPES: Record<string, SourceType> = {
   'SVT Nyheter': 'mainstream', 'Dagens Nyheter': 'mainstream', 'Svenska Dagbladet': 'mainstream',
   // Brazilian Addition
   'Brasil Paralelo': 'mainstream',
+  'O Globo': 'mainstream',
+  'Folha de S.Paulo': 'mainstream',
 
   // Market/Finance
   'CNBC': 'market', 'MarketWatch': 'market', 'Yahoo Finance': 'market',
@@ -682,6 +686,33 @@ const FULL_FEEDS: Record<string, Feed[]> = {
   ],
 };
 
+// Brazil variant feeds: keep full coverage while prioritizing BR/LATAM streams.
+const BR_FEEDS: Record<string, Feed[]> = {
+  ...FULL_FEEDS,
+  politics: [
+    { name: 'O Globo', url: rss('https://news.google.com/rss/search?q=site:oglobo.globo.com+when:1d&hl=pt-BR&gl=BR&ceid=BR:pt-419'), lang: 'pt' },
+    { name: 'Folha de S.Paulo', url: rss('https://feeds.folha.uol.com.br/emcimadahora/rss091.xml'), lang: 'pt' },
+    { name: 'Brasil Paralelo', url: rss('https://www.brasilparalelo.com.br/noticias/rss.xml'), lang: 'pt' },
+    { name: 'BBC World', url: rss('https://feeds.bbci.co.uk/news/world/rss.xml') },
+    { name: 'Reuters World', url: rss('https://news.google.com/rss/search?q=site:reuters.com+world&hl=en-US&gl=US&ceid=US:en') },
+  ],
+  latam: [
+    { name: 'O Globo', url: rss('https://news.google.com/rss/search?q=site:oglobo.globo.com+when:1d&hl=pt-BR&gl=BR&ceid=BR:pt-419'), lang: 'pt' },
+    { name: 'Folha de S.Paulo', url: rss('https://feeds.folha.uol.com.br/emcimadahora/rss091.xml'), lang: 'pt' },
+    { name: 'Brasil Paralelo', url: rss('https://www.brasilparalelo.com.br/noticias/rss.xml'), lang: 'pt' },
+    { name: 'BBC Latin America', url: rss('https://feeds.bbci.co.uk/news/world/latin_america/rss.xml') },
+    { name: 'Reuters LatAm', url: rss('https://news.google.com/rss/search?q=site:reuters.com+(Brazil+OR+Mexico+OR+Argentina)+when:3d&hl=en-US&gl=US&ceid=US:en') },
+    { name: 'InSight Crime', url: rss('https://insightcrime.org/feed/') },
+  ],
+  markets: [
+    { name: 'MarketWatch', url: rss('https://news.google.com/rss/search?q=site:marketwatch.com+markets+when:1d&hl=en-US&gl=US&ceid=US:en') },
+    { name: 'Yahoo Finance', url: rss('https://finance.yahoo.com/news/rssindex') },
+    { name: 'CNBC', url: rss('https://www.cnbc.com/id/100003114/device/rss/rss.html') },
+    { name: 'Reuters Business', url: rss('https://news.google.com/rss/search?q=site:reuters.com+business+markets&hl=en-US&gl=US&ceid=US:en') },
+    { name: 'Financial Times', url: rss('https://www.ft.com/rss/home') },
+  ],
+};
+
 // Tech/AI variant feeds
 const TECH_FEEDS: Record<string, Feed[]> = {
   tech: [
@@ -1028,13 +1059,15 @@ const HAPPY_FEEDS: Record<string, Feed[]> = {
 };
 
 // Variant-aware exports
-export const FEEDS = SITE_VARIANT === 'tech'
+export const FEEDS = SITE_BRAND_VARIANT === 'tech'
   ? TECH_FEEDS
-  : SITE_VARIANT === 'finance'
+  : SITE_BRAND_VARIANT === 'finance'
     ? FINANCE_FEEDS
-    : SITE_VARIANT === 'happy'
+    : SITE_BRAND_VARIANT === 'happy'
       ? HAPPY_FEEDS
-      : FULL_FEEDS;
+      : SITE_BRAND_VARIANT === 'br'
+        ? BR_FEEDS
+        : FULL_FEEDS;
 
 export const SOURCE_REGION_MAP: Record<string, { labelKey: string; feedKeys: string[] }> = {
   // Full (geopolitical) variant regions

@@ -23,11 +23,13 @@ import type { ETFFlowsPanel } from '@/components/ETFFlowsPanel';
 import type { MacroSignalsPanel } from '@/components/MacroSignalsPanel';
 import type { StrategicPosturePanel } from '@/components/StrategicPosturePanel';
 import type { StrategicRiskPanel } from '@/components/StrategicRiskPanel';
+import type { SportsBrPanel } from '@/components/SportsBrPanel';
 import { isDesktopRuntime } from '@/services/runtime';
 import { BETA_MODE } from '@/config/beta';
 import { trackEvent, trackDeeplinkOpened } from '@/services/analytics';
 import { preloadCountryGeometry, getCountryNameByCode } from '@/services/country-geometry';
 import { initI18n } from '@/services/i18n';
+import { SITE_BRAND_VARIANT } from '@/config/variant';
 
 import { fetchBootstrapData } from '@/services/bootstrap';
 import { DesktopUpdater } from '@/app/desktop-updater';
@@ -77,7 +79,7 @@ export class App {
 
     // Check if variant changed - reset all settings to variant defaults
     const storedVariant = localStorage.getItem('worldmonitor-variant');
-    const currentVariant = SITE_VARIANT;
+    const currentVariant = SITE_BRAND_VARIANT;
     console.log(`[App] Variant check: stored="${storedVariant}", current="${currentVariant}"`);
     if (storedVariant !== currentVariant) {
       // Variant changed - use defaults for new variant, clear old settings
@@ -562,6 +564,22 @@ export class App {
       () => (this.state.panels['strategic-risk'] as StrategicRiskPanel).refresh(),
       5 * 60_000,
       () => !!this.state.panels['strategic-risk']
+    );
+    this.refreshScheduler.scheduleRefresh(
+      'sports-br',
+      async () => {
+        const panel = this.state.panels['esportes-br'] as SportsBrPanel | undefined;
+        if (!panel) return false;
+        return panel.refresh();
+      },
+      2 * 60_000,
+      () => !!this.state.panels['esportes-br']
+    );
+    this.refreshScheduler.scheduleRefresh(
+      'camara-votos-br',
+      () => this.dataLoader.loadCamaraNominalVotes(),
+      10 * 60_000,
+      () => !!this.state.panels['camara-votos-br']
     );
 
     // WTO trade policy data — annual data, poll every 10 min to avoid hammering upstream
