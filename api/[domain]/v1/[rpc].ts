@@ -56,6 +56,7 @@ import { createTradeServiceRoutes } from '../../../src/generated/server/worldmon
 import { tradeHandler } from '../../../server/worldmonitor/trade/v1/handler';
 import { createSupplyChainServiceRoutes } from '../../../src/generated/server/worldmonitor/supply_chain/v1/service_server';
 import { supplyChainHandler } from '../../../server/worldmonitor/supply-chain/v1/handler';
+import { createOsnitRoutes } from '../../../server/osnit/v1/bootstrap';
 
 import type { ServerOptions } from '../../../src/generated/server/worldmonitor/seismology/v1/service_server';
 
@@ -134,6 +135,10 @@ const RPC_CACHE_TIER: Record<string, CacheTier> = {
   '/api/prediction/v1/list-prediction-markets': 'medium',
   '/api/supply-chain/v1/get-chokepoint-status': 'medium',
   '/api/news/v1/list-feed-digest': 'slow',
+  '/api/osnit/v1/list-feed': 'slow',
+  '/api/osnit/v1/search-items': 'slow',
+  '/api/osnit/v1/get-item': 'medium',
+  '/api/osnit/v1/list-sources': 'static',
 };
 
 const serverOptions: ServerOptions = { onError: mapErrorToResponse };
@@ -160,6 +165,7 @@ const allRoutes = [
   ...createGivingServiceRoutes(givingHandler, serverOptions),
   ...createTradeServiceRoutes(tradeHandler, serverOptions),
   ...createSupplyChainServiceRoutes(supplyChainHandler, serverOptions),
+  ...createOsnitRoutes(serverOptions),
 ];
 
 const router = createRouter(allRoutes);

@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package osnit.v1;
+
+import "sebuf/http/annotations.proto";
+import "osnit/v1/osnit_item.proto";
+
+// ListFeedRequest retrieves normalized OSNIT items with optional filters.
+message ListFeedRequest {
+  // Named timeframe shortcut: 1h, 6h, 24h, 7d, 30d.
+  string timeframe = 1 [(sebuf.http.query) = { name: "timeframe" }];
+  // Region filters.
+  repeated string regions = 2 [(sebuf.http.query) = { name: "regions" }];
+  // Theme filters.
+  repeated string themes = 3 [(sebuf.http.query) = { name: "themes" }];
+  // Source type filters as lowercase strings: rss, x, telegram.
+  repeated string source_types = 4 [(sebuf.http.query) = { name: "source_types" }];
+  // Inclusive lower time boundary in epoch milliseconds.
+  int64 from = 5 [(sebuf.http.query) = { name: "from" }, (sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+  // Inclusive upper time boundary in epoch milliseconds.
+  int64 to = 6 [(sebuf.http.query) = { name: "to" }, (sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+  // Verification status filter: unverified, partially_verified, verified.
+  string verification_status = 7 [(sebuf.http.query) = { name: "verification_status" }];
+  // Limit per page (max enforced server-side).
+  int32 limit = 8 [(sebuf.http.query) = { name: "limit" }];
+  // Opaque pagination cursor (offset for v1).
+  string cursor = 9 [(sebuf.http.query) = { name: "cursor" }];
+  // Tag filters (e.g., x_filter:exact, x_verification, conflict).
+  repeated string tags = 10 [(sebuf.http.query) = { name: "tags" }];
+  // When true, forces a gather pass before querying.
+  bool refresh = 11 [(sebuf.http.query) = { name: "refresh" }];
+}
+
+// ListFeedResponse returns filtered OSNIT items.
+message ListFeedResponse {
+  // Returned items, ordered by recency.
+  repeated OsnitItem items = 1;
+  // Next cursor when more results exist; empty when done.
+  string next_cursor = 2;
+  // Total items matching filters.
+  int32 total = 3;
+  // Last gather timestamp in epoch milliseconds.
+  int64 refreshed_at = 4 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+}

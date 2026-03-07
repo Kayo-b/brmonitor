@@ -8,6 +8,7 @@ import pkg from './package.json';
 
 const isE2E = process.env.VITE_E2E === '1';
 const isDesktopBuild = process.env.VITE_DESKTOP_RUNTIME === '1';
+const isOsnitFrontend = process.env.VITE_OSNIT_FRONTEND === '1';
 
 const brotliCompressAsync = promisify(brotliCompress);
 const BROTLI_EXTENSIONS = new Set(['.js', '.mjs', '.css', '.html', '.svg', '.json', '.txt', '.xml', '.wasm']);
@@ -217,6 +218,23 @@ function htmlVariantPlugin(): Plugin {
   };
 }
 
+function osnitDevEntryPlugin(): Plugin {
+  return {
+    name: 'osnit-dev-entry',
+    configureServer(server) {
+      if (!isOsnitFrontend) return;
+      server.middlewares.use((req, res, next) => {
+        if ((req.method !== 'GET' && req.method !== 'HEAD') || !req.url) return next();
+        const url = new URL(req.url, 'http://localhost');
+        if (url.pathname !== '/' && url.pathname !== '/index.html') return next();
+        res.statusCode = 302;
+        res.setHeader('Location', '/osnit-api-console.html');
+        res.end();
+      });
+    },
+  };
+}
+
 function polymarketPlugin(): Plugin {
   const GAMMA_BASE = 'https://gamma-api.polymarket.com';
   const ALLOWED_ORDER = ['volume', 'liquidity', 'startDate', 'endDate', 'spread'];
@@ -299,6 +317,7 @@ function sebufApiPlugin(): Plugin {
       positiveEventsServerMod, positiveEventsHandlerMod,
       givingServerMod, givingHandlerMod,
       tradeServerMod, tradeHandlerMod,
+      osnitBootstrapMod,
     ] = await Promise.all([
         import('./server/router'),
         import('./server/cors'),
@@ -343,6 +362,7 @@ function sebufApiPlugin(): Plugin {
         import('./server/worldmonitor/giving/v1/handler'),
         import('./src/generated/server/worldmonitor/trade/v1/service_server'),
         import('./server/worldmonitor/trade/v1/handler'),
+        import('./server/osnit/v1/bootstrap'),
       ]);
 
     const serverOptions = { onError: errorMod.mapErrorToResponse };
@@ -367,6 +387,7 @@ function sebufApiPlugin(): Plugin {
       ...positiveEventsServerMod.createPositiveEventsServiceRoutes(positiveEventsHandlerMod.positiveEventsHandler, serverOptions),
       ...givingServerMod.createGivingServiceRoutes(givingHandlerMod.givingHandler, serverOptions),
       ...tradeServerMod.createTradeServiceRoutes(tradeHandlerMod.tradeHandler, serverOptions),
+      ...osnitBootstrapMod.createOsnitRoutes(serverOptions),
     ];
     cachedCorsMod = corsMod;
     return routerMod.createRouter(allRoutes);
@@ -669,6 +690,7 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
   plugins: [
+    osnitDevEntryPlugin(),
     htmlVariantPlugin(),
     polymarketPlugin(),
     rssProxyPlugin(),

@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package osnit.v1;
+
+import "buf/validate/validate.proto";
+import "sebuf/http/annotations.proto";
+
+// OsnitSourceType identifies where an item was gathered from.
+enum OsnitSourceType {
+  OSNIT_SOURCE_TYPE_UNSPECIFIED = 0;
+  OSNIT_SOURCE_TYPE_RSS = 1;
+  OSNIT_SOURCE_TYPE_X = 2;
+  OSNIT_SOURCE_TYPE_TELEGRAM = 3;
+}
+
+// OsnitVerificationStatus describes whether the claim is corroborated.
+enum OsnitVerificationStatus {
+  OSNIT_VERIFICATION_STATUS_UNSPECIFIED = 0;
+  OSNIT_VERIFICATION_STATUS_UNVERIFIED = 1;
+  OSNIT_VERIFICATION_STATUS_PARTIALLY_VERIFIED = 2;
+  OSNIT_VERIFICATION_STATUS_VERIFIED = 3;
+}
+
+// OsnitItem is a normalized intelligence item gathered from one source.
+message OsnitItem {
+  // Stable id assigned by the gatherer.
+  string id = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.min_len = 1
+  ];
+  // Source type (rss, x, telegram).
+  OsnitSourceType source_type = 2;
+  // Human-readable source name.
+  string source_name = 3;
+  // Source handle/user/channel where relevant.
+  string source_handle = 4;
+  // Canonical URL to the item.
+  string url = 5;
+  // Short title/headline.
+  string title = 6;
+  // Full message/body as captured.
+  string text = 7;
+  // Source publication time, as Unix epoch milliseconds.
+  int64 published_at = 8 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+  // Ingestion time, as Unix epoch milliseconds.
+  int64 ingested_at = 9 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+  // Theme tags (conflict, cyber, military, etc).
+  repeated string themes = 10;
+  // Region tags (iran, middle_east, ukraine, etc).
+  repeated string regions = 11;
+  // Additional tags from ingestion/classification.
+  repeated string tags = 12;
+  // Verification status (unverified / verified).
+  OsnitVerificationStatus verification_status = 13;
+  // Number of independent sources corroborating the claim.
+  int32 corroboration_count = 14;
+  // Confidence score in [0,1].
+  double confidence = 15;
+  // Claim fingerprint for clustering and verification.
+  string claim_hash = 16;
+  // Whether this item came from a high-trust reference source.
+  bool high_trust_reference = 17;
+}
+
+// OsnitSource describes a configured feed/query/account used for gathering.
+message OsnitSource {
+  // Stable source id.
+  string id = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.min_len = 1
+  ];
+  // Source display name.
+  string name = 2;
+  // Source type (rss, x, telegram).
+  OsnitSourceType source_type = 3;
+  // Main URL for the source.
+  string url = 4;
+  // Optional X query syntax when source_type is X.
+  string query = 5;
+  // Optional region focus tag.
+  string region = 6;
+  // Optional thematic focus tag.
+  string theme = 7;
+  // Whether the source is currently enabled.
+  bool enabled = 8;
+  // Whether this source is treated as high-trust.
+  bool high_trust = 9;
+}

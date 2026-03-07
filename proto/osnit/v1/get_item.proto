@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package osnit.v1;
+
+import "buf/validate/validate.proto";
+import "sebuf/http/annotations.proto";
+import "osnit/v1/osnit_item.proto";
+
+// GetItemRequest retrieves one OSNIT item by id.
+message GetItemRequest {
+  // Stable OSNIT item id.
+  string id = 1 [
+    (sebuf.http.query) = { name: "id" },
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+// GetItemResponse returns the resolved OSNIT item.
+message GetItemResponse {
+  // Item payload when found.
+  OsnitItem item = 1;
+}

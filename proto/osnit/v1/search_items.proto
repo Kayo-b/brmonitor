@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package osnit.v1;
+
+import "sebuf/http/annotations.proto";
+import "osnit/v1/osnit_item.proto";
+
+// SearchItemsRequest searches OSNIT items with full-text and structured filters.
+message SearchItemsRequest {
+  // Free-text query matched against title and full text.
+  string q = 1 [(sebuf.http.query) = { name: "q" }];
+  // Named timeframe shortcut: 1h, 6h, 24h, 7d, 30d.
+  string timeframe = 2 [(sebuf.http.query) = { name: "timeframe" }];
+  // Region filters.
+  repeated string regions = 3 [(sebuf.http.query) = { name: "regions" }];
+  // Theme filters.
+  repeated string themes = 4 [(sebuf.http.query) = { name: "themes" }];
+  // Source type filters as lowercase strings: rss, x, telegram.
+  repeated string source_types = 5 [(sebuf.http.query) = { name: "source_types" }];
+  // Inclusive lower time boundary in epoch milliseconds.
+  int64 from = 6 [(sebuf.http.query) = { name: "from" }, (sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+  // Inclusive upper time boundary in epoch milliseconds.
+  int64 to = 7 [(sebuf.http.query) = { name: "to" }, (sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+  // Verification status filter: unverified, partially_verified, verified.
+  string verification_status = 8 [(sebuf.http.query) = { name: "verification_status" }];
+  // Limit per page (max enforced server-side).
+  int32 limit = 9 [(sebuf.http.query) = { name: "limit" }];
+  // Opaque pagination cursor (offset for v1).
+  string cursor = 10 [(sebuf.http.query) = { name: "cursor" }];
+  // Tag filters (e.g., x_filter:exact, x_verification, conflict).
+  repeated string tags = 11 [(sebuf.http.query) = { name: "tags" }];
+  // When true, forces a gather pass before searching.
+  bool refresh = 12 [(sebuf.http.query) = { name: "refresh" }];
+}
+
+// SearchItemsResponse returns matching OSNIT items.
+message SearchItemsResponse {
+  // Matched items, ordered by recency.
+  repeated OsnitItem items = 1;
+  // Next cursor when more results exist; empty when done.
+  string next_cursor = 2;
+  // Total matching items.
+  int32 total = 3;
+  // Last gather timestamp in epoch milliseconds.
+  int64 refreshed_at = 4 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+}

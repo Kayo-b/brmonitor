@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSNIT API Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f8f2;
+      --surface: #ffffff;
+      --surface-soft: #eef3ea;
+      --text: #18221a;
+      --muted: #4d5e50;
+      --accent: #1a7f46;
+      --accent-2: #0d5a9f;
+      --border: #d5e1d3;
+      --danger: #a3141e;
+      --shadow: 0 8px 28px rgba(26, 34, 26, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      background: radial-gradient(circle at 10% 0%, #eaf4dc 0, var(--bg) 42%);
+      color: var(--text);
+    }
+
+    .shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px 16px 32px;
+      animation: reveal 260ms ease-out;
+    }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+      letter-spacing: 0.01em;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-top: 14px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 10px;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 6px 0 2px;
+    }
+
+    .chips label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f2f7ef;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 5px 10px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    button {
+      border: 0;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: var(--accent-2);
+    }
+
+    button.ghost {
+      background: #e3ece8;
+      color: var(--text);
+    }
+
+    .result-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 10px;
+    }
+
+    .endpoint-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .endpoint-name {
+      font-weight: 700;
+      font-size: 0.93rem;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-family: "IBM Plex Mono", monospace;
+      word-break: break-all;
+    }
+
+    .status {
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: #e3ece8;
+      color: var(--text);
+      align-self: flex-start;
+    }
+
+    .status.ok {
+      background: #ddf0df;
+      color: #0f5f2f;
+    }
+
+    .status.err {
+      background: #f8e0e3;
+      color: var(--danger);
+    }
+
+    .table-wrap {
+      margin-top: 8px;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfdfb;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 620px;
+      font-size: 0.8rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 7px 8px;
+      border-bottom: 1px solid #e6ece5;
+      white-space: nowrap;
+    }
+
+    th {
+      font-size: 0.74rem;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 980px) {
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .span-6, .span-4, .span-3, .span-8 {
+        grid-column: span 12 !important;
+      }
+    }
+
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <h1>OSNIT API Console</h1>
+    <p class="subtitle">Query all OSNIT endpoints and inspect structured responses.</p>
+
+    <section class="panel">
+      <div class="grid">
+        <div class="field span-8">
+          <label for="baseUrl">API Base URL</label>
+          <input id="baseUrl" type="text" value="/api/osnit/v1" />
+        </div>
+        <div class="field span-4">
+          <label for="timeframe">Timeframe</label>
+          <select id="timeframe">
+            <option value="">(none)</option>
+            <option value="1h">Last hour</option>
+            <option value="6h">Last 6 hours</option>
+            <option value="24h">Last 1 day</option>
+            <option value="7d">Last 1 week</option>
+            <option value="30d">Last 1 month</option>
+          </select>
+        </div>
+
+        <div class="field span-4">
+          <label for="q">Search Query (`search-items`)</label>
+          <input id="q" type="text" placeholder="drone strike" />
+        </div>
+        <div class="field span-4">
+          <label for="itemId">Item ID (`get-item`)</label>
+          <input id="itemId" type="text" placeholder="auto-filled from feed" />
+        </div>
+        <div class="field span-4">
+          <label for="sourceType">Source Type (`list-sources`)</label>
+          <select id="sourceType">
+            <option value="">(all)</option>
+            <option value="rss">rss</option>
+            <option value="x">x</option>
+            <option value="telegram">telegram</option>
+          </select>
+        </div>
+
+        <div class="field span-3">
+          <label for="verificationStatus">Verification</label>
+          <select id="verificationStatus">
+            <option value="">(all)</option>
+            <option value="unverified">unverified</option>
+            <option value="partially_verified">partially_verified</option>
+            <option value="verified">verified</option>
+          </select>
+        </div>
+        <div class="field span-3">
+          <label for="translateTo">Translate To</label>
+          <select id="translateTo">
+            <option value="">(original)</option>
+            <option value="en">English</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="ar">Arabic</option>
+            <option value="he">Hebrew</option>
+            <option value="uk">Ukrainian</option>
+            <option value="ru">Russian</option>
+            <option value="fa">Persian</option>
+          </select>
+        </div>
+        <div class="field span-3">
+          <label for="limit">Limit</label>
+          <input id="limit" type="number" min="1" max="250" value="20" />
+        </div>
+        <div class="field span-3">
+          <label for="cursor">Cursor</label>
+          <input id="cursor" type="text" placeholder="0" />
+        </div>
+        <div class="field span-3">
+          <label for="refresh">Refresh gather</label>
+          <select id="refresh">
+            <option value="false">false</option>
+            <option value="true">true</option>
+          </select>
+        </div>
+
+        <div class="field span-6">
+          <label for="tags">Tags (comma or spaces)</label>
+          <input id="tags" type="text" placeholder="x_filter:exact, x_verification, conflict" />
+        </div>
+        <div class="field span-3">
+          <label for="fromTs">From (epoch ms)</label>
+          <input id="fromTs" type="text" placeholder="optional" />
+        </div>
+        <div class="field span-3">
+          <label for="toTs">To (epoch ms)</label>
+          <input id="toTs" type="text" placeholder="optional" />
+        </div>
+
+        <div class="field span-12">
+          <label>Regions</label>
+          <div class="chips" id="regions"></div>
+        </div>
+        <div class="field span-12">
+          <label>Themes</label>
+          <div class="chips" id="themes"></div>
+        </div>
+        <div class="field span-12">
+          <label>Source Types</label>
+          <div class="chips" id="sourceTypes"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="runAll" type="button">Run All Endpoints</button>
+        <button id="runFeed" class="secondary" type="button">Run list-feed</button>
+        <button id="runSearch" class="secondary" type="button">Run search-items</button>
+        <button id="runGetItem" class="secondary" type="button">Run get-item</button>
+        <button id="runSources" class="secondary" type="button">Run list-sources</button>
+        <button id="clearAll" class="ghost" type="button">Clear Results</button>
+      </div>
+    </section>
+
+    <section class="result-grid">
+      <article class="panel" id="card-list-feed"></article>
+      <article class="panel" id="card-search-items"></article>
+      <article class="panel" id="card-get-item"></article>
+      <article class="panel" id="card-list-sources"></article>
+    </section>
+  </main>
+
+  <script>
+    const REGION_OPTIONS = ["iran", "middle_east", "ukraine", "russia", "usa", "china", "taiwan", "venezuela", "cuba", "colombia", "brazil"];
+    const THEME_OPTIONS = ["osint", "conflict", "military", "security", "cyber", "politics", "economy", "breaking", "alerts", "general"];
+    const SOURCE_TYPE_OPTIONS = ["rss", "x", "telegram"];
+
+    const cards = {
+      listFeed: document.getElementById("card-list-feed"),
+      searchItems: document.getElementById("card-search-items"),
+      getItem: document.getElementById("card-get-item"),
+      listSources: document.getElementById("card-list-sources")
+    };
+
+    function byId(id) {
+      return document.getElementById(id);
+    }
+
+    function parseCsvLike(value) {
+      return (value || "")
+        .split(/[,\s]+/)
+        .map((v) => v.trim())
+        .filter(Boolean);
+    }
+
+    function createChipList(targetId, options, groupName) {
+      const root = byId(targetId);
+      for (const option of options) {
+        const id = `${groupName}-${option}`;
+        const label = document.createElement("label");
+        label.setAttribute("for", id);
+        label.innerHTML = `<input id="${id}" type="checkbox" name="${groupName}" value="${option}"> ${option}`;
+        root.appendChild(label);
+      }
+    }
+
+    function getChecked(name) {
+      return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`))
+        .map((el) => el.value);
+    }
+
+    function endpointBase() {
+      const value = byId("baseUrl").value.trim();
+      if (!value) return "/api/osnit/v1";
+      if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("/")) return value.replace(/\/$/, "");
+      return `/${value.replace(/^\/+/, "").replace(/\/$/, "")}`;
+    }
+
+    function buildSharedParams() {
+      const params = new URLSearchParams();
+      const timeframe = byId("timeframe").value.trim();
+      const verification = byId("verificationStatus").value.trim();
+      const translateTo = byId("translateTo").value.trim();
+      const limit = byId("limit").value.trim();
+      const cursor = byId("cursor").value.trim();
+      const refresh = byId("refresh").value.trim();
+      const fromTs = byId("fromTs").value.trim();
+      const toTs = byId("toTs").value.trim();
+      const tags = parseCsvLike(byId("tags").value);
+      const regions = getChecked("regions");
+      const themes = getChecked("themes");
+      const sourceTypes = getChecked("sourceTypes");
+
+      if (timeframe) params.set("timeframe", timeframe);
+      if (verification) params.set("verification_status", verification);
+      if (translateTo) params.set("translate_to", translateTo);
+      if (limit) params.set("limit", limit);
+      if (cursor) params.set("cursor", cursor);
+      if (refresh) params.set("refresh", refresh);
+      if (fromTs) params.set("from", fromTs);
+      if (toTs) params.set("to", toTs);
+      if (regions.length) params.set("regions", regions.join(","));
+      if (themes.length) params.set("themes", themes.join(","));
+      if (sourceTypes.length) params.set("source_types", sourceTypes.join(","));
+      if (tags.length) params.set("tags", tags.join(","));
+      return params;
+    }
+
+    function formatDate(epochMs) {
+      const n = Number(epochMs);
+      if (!Number.isFinite(n) || n <= 0) return "";
+      return new Date(n).toISOString();
+    }
+
+    function statusClass(status) {
+      if (!status) return "";
+      return status >= 200 && status < 300 ? "ok" : "err";
+    }
+
+    function createTable(headers, rows) {
+      const wrap = document.createElement("div");
+      wrap.className = "table-wrap";
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const trh = document.createElement("tr");
+      headers.forEach((h) => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        trh.appendChild(th);
+      });
+      thead.appendChild(trh);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      rows.forEach((row) => {
+        const tr = document.createElement("tr");
+        row.forEach((cell) => {
+          const td = document.createElement("td");
+          td.textContent = cell == null ? "" : String(cell);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+      return wrap;
+    }
+
+    function renderCard(kind, payload) {
+      const card = cards[kind];
+      card.innerHTML = "";
+
+      const header = document.createElement("div");
+      header.className = "endpoint-header";
+      const name = document.createElement("div");
+      name.className = "endpoint-name";
+      name.textContent = payload.title;
+      const status = document.createElement("div");
+      status.className = `status ${statusClass(payload.status)}`;
+      status.textContent = payload.status ? `${payload.status}` : "idle";
+      header.appendChild(name);
+      header.appendChild(status);
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = payload.url ? `${payload.url} (${payload.ms}ms)` : "Not called yet";
+
+      const out = document.createElement("textarea");
+      out.readOnly = true;
+      out.value = payload.body ? JSON.stringify(payload.body, null, 2) : "";
+
+      card.appendChild(header);
+      card.appendChild(meta);
+      card.appendChild(out);
+
+      if (kind === "listFeed" || kind === "searchItems") {
+        const items = Array.isArray(payload.body?.items) ? payload.body.items.slice(0, 12) : [];
+        if (items.length) {
+          const rows = items.map((item) => [
+            item.id || "",
+            item.sourceType || "",
+            item.regions?.join("|") || "",
+            item.verificationStatus || "",
+            item.tags?.slice(0, 3).join("|") || "",
+            formatDate(item.publishedAt)
+          ]);
+          card.appendChild(createTable(
+            ["id", "sourceType", "regions", "verification", "tags", "publishedAt"],
+            rows
+          ));
+        }
+      }
+
+      if (kind === "listSources") {
+        const sources = Array.isArray(payload.body?.sources) ? payload.body.sources.slice(0, 15) : [];
+        if (sources.length) {
+          const rows = sources.map((src) => [
+            src.id || "",
+            src.sourceType || "",
+            src.region || "",
+            src.enabled === false ? "false" : "true",
+            src.url || ""
+          ]);
+          card.appendChild(createTable(
+            ["id", "sourceType", "region", "enabled", "url"],
+            rows
+          ));
+        }
+      }
+    }
+
+    async function callApi(kind, path, params) {
+      const base = endpointBase();
+      const qs = params.toString();
+      const url = `${base}/${path}${qs ? `?${qs}` : ""}`;
+      const started = performance.now();
+      try {
+        const response = await fetch(url, { headers: { "Accept": "application/json" } });
+        const text = await response.text();
+        let body;
+        try {
+          body = text ? JSON.parse(text) : {};
+        } catch {
+          body = { raw: text };
+        }
+        const ms = Math.round(performance.now() - started);
+        renderCard(kind, { title: path, status: response.status, url, ms, body });
+        return body;
+      } catch (error) {
+        const ms = Math.round(performance.now() - started);
+        renderCard(kind, {
+          title: path,
+          status: 0,
+          url,
+          ms,
+          body: { error: String(error && error.message ? error.message : error) }
+        });
+        return null;
+      }
+    }
+
+    async function runListFeed() {
+      const params = buildSharedParams();
+      const body = await callApi("listFeed", "list-feed", params);
+      if (body && Array.isArray(body.items) && body.items[0] && !byId("itemId").value.trim()) {
+        byId("itemId").value = body.items[0].id || "";
+      }
+      return body;
+    }
+
+    async function runSearchItems() {
+      const params = buildSharedParams();
+      const q = byId("q").value.trim();
+      if (q) params.set("q", q);
+      return callApi("searchItems", "search-items", params);
+    }
+
+    async function runGetItem() {
+      const itemId = byId("itemId").value.trim();
+      if (!itemId) {
+        renderCard("getItem", {
+          title: "get-item",
+          status: 0,
+          url: "",
+          ms: 0,
+          body: { error: "Provide an item id or run list-feed first." }
+        });
+        return null;
+      }
+      const params = new URLSearchParams();
+      params.set("id", itemId);
+      return callApi("getItem", "get-item", params);
+    }
+
+    async function runListSources() {
+      const params = new URLSearchParams();
+      const sourceType = byId("sourceType").value.trim();
+      const selectedRegions = getChecked("regions");
+      if (sourceType) params.set("source_type", sourceType);
+      if (selectedRegions.length === 1) params.set("region", selectedRegions[0]);
+      return callApi("listSources", "list-sources", params);
+    }
+
+    async function runAll() {
+      const feed = await runListFeed();
+      await Promise.all([runSearchItems(), runListSources()]);
+      if (!byId("itemId").value.trim() && feed?.items?.[0]?.id) {
+        byId("itemId").value = feed.items[0].id;
+      }
+      if (byId("itemId").value.trim()) await runGetItem();
+    }
+
+    function clearResults() {
+      renderCard("listFeed", { title: "list-feed", status: 0, url: "", ms: 0, body: null });
+      renderCard("searchItems", { title: "search-items", status: 0, url: "", ms: 0, body: null });
+      renderCard("getItem", { title: "get-item", status: 0, url: "", ms: 0, body: null });
+      renderCard("listSources", { title: "list-sources", status: 0, url: "", ms: 0, body: null });
+    }
+
+    createChipList("regions", REGION_OPTIONS, "regions");
+    createChipList("themes", THEME_OPTIONS, "themes");
+    createChipList("sourceTypes", SOURCE_TYPE_OPTIONS, "sourceTypes");
+
+    byId("runAll").addEventListener("click", runAll);
+    byId("runFeed").addEventListener("click", runListFeed);
+    byId("runSearch").addEventListener("click", runSearchItems);
+    byId("runGetItem").addEventListener("click", runGetItem);
+    byId("runSources").addEventListener("click", runListSources);
+    byId("clearAll").addEventListener("click", clearResults);
+
+    clearResults();
+  </script>
+</body>
+</html>

@@ -1,0 +1,600 @@
+openapi: 3.1.0
+info:
+    title: OsnitService API
+    version: 1.0.0
+paths:
+    /api/osnit/v1/list-feed:
+        get:
+            tags:
+                - OsnitService
+            summary: ListFeed
+            description: ListFeed returns the latest OSNIT items with structured filters.
+            operationId: ListFeed
+            parameters:
+                - name: timeframe
+                  in: query
+                  description: 'Named timeframe shortcut: 1h, 6h, 24h, 7d, 30d.'
+                  required: false
+                  schema:
+                    type: string
+                - name: regions
+                  in: query
+                  description: Region filters.
+                  required: false
+                  schema:
+                    type: string
+                - name: themes
+                  in: query
+                  description: Theme filters.
+                  required: false
+                  schema:
+                    type: string
+                - name: source_types
+                  in: query
+                  description: 'Source type filters as lowercase strings: rss, x, telegram.'
+                  required: false
+                  schema:
+                    type: string
+                - name: from
+                  in: query
+                  description: Inclusive lower time boundary in epoch milliseconds.
+                  required: false
+                  schema:
+                    type: string
+                    format: int64
+                - name: to
+                  in: query
+                  description: Inclusive upper time boundary in epoch milliseconds.
+                  required: false
+                  schema:
+                    type: string
+                    format: int64
+                - name: verification_status
+                  in: query
+                  description: 'Verification status filter: unverified, partially_verified, verified.'
+                  required: false
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  description: Limit per page (max enforced server-side).
+                  required: false
+                  schema:
+                    type: integer
+                    format: int32
+                - name: cursor
+                  in: query
+                  description: Opaque pagination cursor (offset for v1).
+                  required: false
+                  schema:
+                    type: string
+                - name: tags
+                  in: query
+                  description: Tag filters (e.g., x_filter:exact, x_verification, conflict).
+                  required: false
+                  schema:
+                    type: string
+                - name: refresh
+                  in: query
+                  description: When true, forces a gather pass before querying.
+                  required: false
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListFeedResponse'
+                "400":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationError'
+                default:
+                    description: Error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /api/osnit/v1/search-items:
+        get:
+            tags:
+                - OsnitService
+            summary: SearchItems
+            description: SearchItems performs text search on gathered OSNIT items.
+            operationId: SearchItems
+            parameters:
+                - name: q
+                  in: query
+                  description: Free-text query matched against title and full text.
+                  required: false
+                  schema:
+                    type: string
+                - name: timeframe
+                  in: query
+                  description: 'Named timeframe shortcut: 1h, 6h, 24h, 7d, 30d.'
+                  required: false
+                  schema:
+                    type: string
+                - name: regions
+                  in: query
+                  description: Region filters.
+                  required: false
+                  schema:
+                    type: string
+                - name: themes
+                  in: query
+                  description: Theme filters.
+                  required: false
+                  schema:
+                    type: string
+                - name: source_types
+                  in: query
+                  description: 'Source type filters as lowercase strings: rss, x, telegram.'
+                  required: false
+                  schema:
+                    type: string
+                - name: from
+                  in: query
+                  description: Inclusive lower time boundary in epoch milliseconds.
+                  required: false
+                  schema:
+                    type: string
+                    format: int64
+                - name: to
+                  in: query
+                  description: Inclusive upper time boundary in epoch milliseconds.
+                  required: false
+                  schema:
+                    type: string
+                    format: int64
+                - name: verification_status
+                  in: query
+                  description: 'Verification status filter: unverified, partially_verified, verified.'
+                  required: false
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  description: Limit per page (max enforced server-side).
+                  required: false
+                  schema:
+                    type: integer
+                    format: int32
+                - name: cursor
+                  in: query
+                  description: Opaque pagination cursor (offset for v1).
+                  required: false
+                  schema:
+                    type: string
+                - name: tags
+                  in: query
+                  description: Tag filters (e.g., x_filter:exact, x_verification, conflict).
+                  required: false
+                  schema:
+                    type: string
+                - name: refresh
+                  in: query
+                  description: When true, forces a gather pass before searching.
+                  required: false
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SearchItemsResponse'
+                "400":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationError'
+                default:
+                    description: Error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /api/osnit/v1/get-item:
+        get:
+            tags:
+                - OsnitService
+            summary: GetItem
+            description: GetItem returns one OSNIT item by id.
+            operationId: GetItem
+            parameters:
+                - name: id
+                  in: query
+                  description: Stable OSNIT item id.
+                  required: false
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetItemResponse'
+                "400":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationError'
+                default:
+                    description: Error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /api/osnit/v1/list-sources:
+        get:
+            tags:
+                - OsnitService
+            summary: ListSources
+            description: ListSources returns configured source definitions.
+            operationId: ListSources
+            parameters:
+                - name: source_type
+                  in: query
+                  description: 'Optional source type filter: rss, x, telegram.'
+                  required: false
+                  schema:
+                    type: string
+                - name: region
+                  in: query
+                  description: Optional region filter.
+                  required: false
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSourcesResponse'
+                "400":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationError'
+                default:
+                    description: Error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+components:
+    schemas:
+        Error:
+            type: object
+            properties:
+                message:
+                    type: string
+                    description: Error message (e.g., 'user not found', 'database connection failed')
+            description: Error is returned when a handler encounters an error. It contains a simple error message that the developer can customize.
+        FieldViolation:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: The field path that failed validation (e.g., 'user.email' for nested fields). For header validation, this will be the header name (e.g., 'X-API-Key')
+                description:
+                    type: string
+                    description: Human-readable description of the validation violation (e.g., 'must be a valid email address', 'required field missing')
+            required:
+                - field
+                - description
+            description: FieldViolation describes a single validation error for a specific field.
+        ValidationError:
+            type: object
+            properties:
+                violations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/FieldViolation'
+                    description: List of validation violations
+            required:
+                - violations
+            description: ValidationError is returned when request validation fails. It contains a list of field violations describing what went wrong.
+        ListFeedRequest:
+            type: object
+            properties:
+                timeframe:
+                    type: string
+                    description: 'Named timeframe shortcut: 1h, 6h, 24h, 7d, 30d.'
+                regions:
+                    type: array
+                    items:
+                        type: string
+                        description: Region filters.
+                themes:
+                    type: array
+                    items:
+                        type: string
+                        description: Theme filters.
+                sourceTypes:
+                    type: array
+                    items:
+                        type: string
+                        description: 'Source type filters as lowercase strings: rss, x, telegram.'
+                from:
+                    type: integer
+                    format: int64
+                    description: 'Inclusive lower time boundary in epoch milliseconds.. Warning: Values > 2^53 may lose precision in JavaScript'
+                to:
+                    type: integer
+                    format: int64
+                    description: 'Inclusive upper time boundary in epoch milliseconds.. Warning: Values > 2^53 may lose precision in JavaScript'
+                verificationStatus:
+                    type: string
+                    description: 'Verification status filter: unverified, partially_verified, verified.'
+                limit:
+                    type: integer
+                    format: int32
+                    description: Limit per page (max enforced server-side).
+                cursor:
+                    type: string
+                    description: Opaque pagination cursor (offset for v1).
+                tags:
+                    type: array
+                    items:
+                        type: string
+                        description: Tag filters (e.g., x_filter:exact, x_verification, conflict).
+                refresh:
+                    type: boolean
+                    description: When true, forces a gather pass before querying.
+            description: ListFeedRequest retrieves normalized OSNIT items with optional filters.
+        ListFeedResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OsnitItem'
+                nextCursor:
+                    type: string
+                    description: Next cursor when more results exist; empty when done.
+                total:
+                    type: integer
+                    format: int32
+                    description: Total items matching filters.
+                refreshedAt:
+                    type: integer
+                    format: int64
+                    description: 'Last gather timestamp in epoch milliseconds.. Warning: Values > 2^53 may lose precision in JavaScript'
+            description: ListFeedResponse returns filtered OSNIT items.
+        OsnitItem:
+            type: object
+            properties:
+                id:
+                    type: string
+                    minLength: 1
+                    description: Stable id assigned by the gatherer.
+                sourceType:
+                    type: string
+                    enum:
+                        - OSNIT_SOURCE_TYPE_UNSPECIFIED
+                        - OSNIT_SOURCE_TYPE_RSS
+                        - OSNIT_SOURCE_TYPE_X
+                        - OSNIT_SOURCE_TYPE_TELEGRAM
+                    description: OsnitSourceType identifies where an item was gathered from.
+                sourceName:
+                    type: string
+                    description: Human-readable source name.
+                sourceHandle:
+                    type: string
+                    description: Source handle/user/channel where relevant.
+                url:
+                    type: string
+                    description: Canonical URL to the item.
+                title:
+                    type: string
+                    description: Short title/headline.
+                text:
+                    type: string
+                    description: Full message/body as captured.
+                publishedAt:
+                    type: integer
+                    format: int64
+                    description: 'Source publication time, as Unix epoch milliseconds.. Warning: Values > 2^53 may lose precision in JavaScript'
+                ingestedAt:
+                    type: integer
+                    format: int64
+                    description: 'Ingestion time, as Unix epoch milliseconds.. Warning: Values > 2^53 may lose precision in JavaScript'
+                themes:
+                    type: array
+                    items:
+                        type: string
+                        description: Theme tags (conflict, cyber, military, etc).
+                regions:
+                    type: array
+                    items:
+                        type: string
+                        description: Region tags (iran, middle_east, ukraine, etc).
+                tags:
+                    type: array
+                    items:
+                        type: string
+                        description: Additional tags from ingestion/classification.
+                verificationStatus:
+                    type: string
+                    enum:
+                        - OSNIT_VERIFICATION_STATUS_UNSPECIFIED
+                        - OSNIT_VERIFICATION_STATUS_UNVERIFIED
+                        - OSNIT_VERIFICATION_STATUS_PARTIALLY_VERIFIED
+                        - OSNIT_VERIFICATION_STATUS_VERIFIED
+                    description: OsnitVerificationStatus describes whether the claim is corroborated.
+                corroborationCount:
+                    type: integer
+                    format: int32
+                    description: Number of independent sources corroborating the claim.
+                confidence:
+                    type: number
+                    format: double
+                    description: Confidence score in [0,1].
+                claimHash:
+                    type: string
+                    description: Claim fingerprint for clustering and verification.
+                highTrustReference:
+                    type: boolean
+                    description: Whether this item came from a high-trust reference source.
+            required:
+                - id
+            description: OsnitItem is a normalized intelligence item gathered from one source.
+        SearchItemsRequest:
+            type: object
+            properties:
+                q:
+                    type: string
+                    description: Free-text query matched against title and full text.
+                timeframe:
+                    type: string
+                    description: 'Named timeframe shortcut: 1h, 6h, 24h, 7d, 30d.'
+                regions:
+                    type: array
+                    items:
+                        type: string
+                        description: Region filters.
+                themes:
+                    type: array
+                    items:
+                        type: string
+                        description: Theme filters.
+                sourceTypes:
+                    type: array
+                    items:
+                        type: string
+                        description: 'Source type filters as lowercase strings: rss, x, telegram.'
+                from:
+                    type: integer
+                    format: int64
+                    description: 'Inclusive lower time boundary in epoch milliseconds.. Warning: Values > 2^53 may lose precision in JavaScript'
+                to:
+                    type: integer
+                    format: int64
+                    description: 'Inclusive upper time boundary in epoch milliseconds.. Warning: Values > 2^53 may lose precision in JavaScript'
+                verificationStatus:
+                    type: string
+                    description: 'Verification status filter: unverified, partially_verified, verified.'
+                limit:
+                    type: integer
+                    format: int32
+                    description: Limit per page (max enforced server-side).
+                cursor:
+                    type: string
+                    description: Opaque pagination cursor (offset for v1).
+                tags:
+                    type: array
+                    items:
+                        type: string
+                        description: Tag filters (e.g., x_filter:exact, x_verification, conflict).
+                refresh:
+                    type: boolean
+                    description: When true, forces a gather pass before searching.
+            description: SearchItemsRequest searches OSNIT items with full-text and structured filters.
+        SearchItemsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OsnitItem'
+                nextCursor:
+                    type: string
+                    description: Next cursor when more results exist; empty when done.
+                total:
+                    type: integer
+                    format: int32
+                    description: Total matching items.
+                refreshedAt:
+                    type: integer
+                    format: int64
+                    description: 'Last gather timestamp in epoch milliseconds.. Warning: Values > 2^53 may lose precision in JavaScript'
+            description: SearchItemsResponse returns matching OSNIT items.
+        GetItemRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    minLength: 1
+                    description: Stable OSNIT item id.
+            required:
+                - id
+            description: GetItemRequest retrieves one OSNIT item by id.
+        GetItemResponse:
+            type: object
+            properties:
+                item:
+                    $ref: '#/components/schemas/OsnitItem'
+            description: GetItemResponse returns the resolved OSNIT item.
+        ListSourcesRequest:
+            type: object
+            properties:
+                sourceType:
+                    type: string
+                    description: 'Optional source type filter: rss, x, telegram.'
+                region:
+                    type: string
+                    description: Optional region filter.
+            description: ListSourcesRequest lists configured gathering sources.
+        ListSourcesResponse:
+            type: object
+            properties:
+                sources:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OsnitSource'
+                refreshedAt:
+                    type: integer
+                    format: int64
+                    description: 'Last gather timestamp in epoch milliseconds.. Warning: Values > 2^53 may lose precision in JavaScript'
+            description: ListSourcesResponse returns configured sources.
+        OsnitSource:
+            type: object
+            properties:
+                id:
+                    type: string
+                    minLength: 1
+                    description: Stable source id.
+                name:
+                    type: string
+                    description: Source display name.
+                sourceType:
+                    type: string
+                    enum:
+                        - OSNIT_SOURCE_TYPE_UNSPECIFIED
+                        - OSNIT_SOURCE_TYPE_RSS
+                        - OSNIT_SOURCE_TYPE_X
+                        - OSNIT_SOURCE_TYPE_TELEGRAM
+                    description: OsnitSourceType identifies where an item was gathered from.
+                url:
+                    type: string
+                    description: Main URL for the source.
+                query:
+                    type: string
+                    description: Optional X query syntax when source_type is X.
+                region:
+                    type: string
+                    description: Optional region focus tag.
+                theme:
+                    type: string
+                    description: Optional thematic focus tag.
+                enabled:
+                    type: boolean
+                    description: Whether the source is currently enabled.
+                highTrust:
+                    type: boolean
+                    description: Whether this source is treated as high-trust.
+            required:
+                - id
+            description: OsnitSource describes a configured feed/query/account used for gathering.

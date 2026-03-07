@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "updatedAt": "2026-03-07T00:00:00Z",
+  "rss": [
+    {
+      "id": "rss-reuters-world",
+      "name": "Reuters World",
+      "url": "https://news.google.com/rss/search?q=site%3Areuters.com%20world&hl=en-US&gl=US&ceid=US%3Aen",
+      "region": "global",
+      "theme": "general",
+      "highTrust": true
+    },
+    {
+      "id": "rss-ap-news",
+      "name": "AP News",
+      "url": "https://news.google.com/rss/search?q=site%3Aapnews.com&hl=en-US&gl=US&ceid=US%3Aen",
+      "region": "global",
+      "theme": "general",
+      "highTrust": true
+    },
+    {
+      "id": "rss-bbc-world",
+      "name": "BBC World",
+      "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
+      "region": "global",
+      "theme": "general",
+      "highTrust": true
+    },
+    {
+      "id": "rss-guardian-world",
+      "name": "Guardian World",
+      "url": "https://www.theguardian.com/world/rss",
+      "region": "global",
+      "theme": "general",
+      "highTrust": false
+    },
+    {
+      "id": "rss-bbc-middle-east",
+      "name": "BBC Middle East",
+      "url": "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml",
+      "region": "middle_east",
+      "theme": "conflict",
+      "highTrust": true
+    },
+    {
+      "id": "rss-al-jazeera",
+      "name": "Al Jazeera",
+      "url": "https://www.aljazeera.com/xml/rss/all.xml",
+      "region": "middle_east",
+      "theme": "conflict",
+      "highTrust": false
+    },
+    {
+      "id": "rss-defense-one",
+      "name": "Defense One",
+      "url": "https://www.defenseone.com/rss/all/",
+      "region": "global",
+      "theme": "military",
+      "highTrust": true
+    },
+    {
+      "id": "rss-breaking-defense",
+      "name": "Breaking Defense",
+      "url": "https://breakingdefense.com/feed/",
+      "region": "global",
+      "theme": "military",
+      "highTrust": false
+    },
+    {
+      "id": "rss-defense-news",
+      "name": "Defense News",
+      "url": "https://www.defensenews.com/arc/outboundfeeds/rss/?outputType=xml",
+      "region": "global",
+      "theme": "military",
+      "highTrust": false
+    },
+    {
+      "id": "rss-usni-news",
+      "name": "USNI News",
+      "url": "https://news.usni.org/feed",
+      "region": "global",
+      "theme": "military",
+      "highTrust": true
+    },
+    {
+      "id": "rss-foreign-policy",
+      "name": "Foreign Policy",
+      "url": "https://foreignpolicy.com/feed/",
+      "region": "global",
+      "theme": "politics",
+      "highTrust": false
+    },
+    {
+      "id": "rss-bellingcat",
+      "name": "Bellingcat",
+      "url": "https://news.google.com/rss/search?q=site%3Abellingcat.com%20when%3A30d&hl=en-US&gl=US&ceid=US%3Aen",
+      "region": "global",
+      "theme": "osint",
+      "highTrust": false
+    },
+    {
+      "id": "rss-krebs-security",
+      "name": "Krebs Security",
+      "url": "https://krebsonsecurity.com/feed/",
+      "region": "global",
+      "theme": "cyber",
+      "highTrust": false
+    }
+  ],
+  "x": {
+    "accounts": [
+      {
+        "id": "x-account-osinttechnical",
+        "name": "@Osinttechnical",
+        "handle": "Osinttechnical",
+        "url": "https://x.com/Osinttechnical",
+        "query": "from:Osinttechnical -is:retweet",
+        "region": "global",
+        "theme": "osint",
+        "highTrust": true
+      }
+    ],
+    "queries": [
+      {
+        "id": "xq-iran-missile",
+        "name": "Iran Signals",
+        "query": "(iran OR tehran OR IRGC) (missile OR drone OR strike OR explosion) -is:retweet",
+        "region": "iran",
+        "theme": "military"
+      },
+      {
+        "id": "xq-middle-east-escalation",
+        "name": "Middle East Escalation",
+        "query": "(israel OR gaza OR lebanon OR syria OR yemen) (attack OR strike OR raid OR rocket) -is:retweet",
+        "region": "middle_east",
+        "theme": "conflict"
+      },
+      {
+        "id": "xq-ukraine-frontline",
+        "name": "Ukraine Frontline",
+        "query": "(ukraine OR kyiv OR donetsk OR zaporizhzhia) (drone OR missile OR shelling OR frontline) -is:retweet",
+        "region": "ukraine",
+        "theme": "conflict"
+      },
+      {
+        "id": "xq-russia-security",
+        "name": "Russia Security",
+        "query": "(russia OR moscow OR kremlin) (attack OR mobilization OR military OR sanctions) -is:retweet",
+        "region": "russia",
+        "theme": "security"
+      },
+      {
+        "id": "xq-usa-national-security",
+        "name": "USA Security",
+        "query": "(\"united states\" OR USA OR Pentagon OR \"White House\") (security OR military OR sanctions OR cyber) -is:retweet",
+        "region": "usa",
+        "theme": "security"
+      },
+      {
+        "id": "xq-china-taiwan",
+        "name": "China Taiwan Watch",
+        "query": "(china OR beijing OR PLA OR taiwan OR taipei) (\"taiwan strait\" OR drill OR incursion OR military) -is:retweet",
+        "region": "china",
+        "theme": "military"
+      },
+      {
+        "id": "xq-latam-monitor",
+        "name": "LatAm Monitor",
+        "query": "(venezuela OR cuba OR colombia OR brazil) (protest OR election OR military OR sanctions OR unrest) -is:retweet",
+        "region": "venezuela",
+        "theme": "politics"
+      }
+    ]
+  }
+}

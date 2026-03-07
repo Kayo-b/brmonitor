@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSNIT Feed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8faf6;
+      --card: #ffffff;
+      --line: #dce6d8;
+      --text: #1a261d;
+      --muted: #57715f;
+      --accent: #0f7c52;
+      --accent-2: #144f8f;
+      --warn: #9c1f2f;
+      --ok: #17653a;
+      --partial: #835a00;
+      --chip: #eff5ee;
+      --shadow: 0 8px 28px rgba(26, 38, 29, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Archivo", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 0, #e5f2de 0, var(--bg) 32%),
+        var(--bg);
+    }
+
+    .app {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 12px 12px 32px;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 12px;
+    }
+
+    .feed-shell {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .titlebar {
+      position: sticky;
+      top: 0;
+      z-index: 8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(7px);
+    }
+
+    .titlebar h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      letter-spacing: 0.01em;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .feed {
+      min-height: 240px;
+    }
+
+    .item {
+      border-bottom: 1px solid var(--line);
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 10px;
+      animation: appear 220ms ease-out;
+    }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: linear-gradient(145deg, #d4ead6, #f5f8f2);
+      border: 1px solid #bfd3bf;
+      color: #1b3f26;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .source-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .source-handle,
+    .dot,
+    .date {
+      color: var(--muted);
+      font-size: 0.81rem;
+    }
+
+    .status {
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .status.verified {
+      color: var(--ok);
+      background: #e4f2e6;
+      border-color: #b8d8be;
+    }
+
+    .status.partial {
+      color: var(--partial);
+      background: #fff3d9;
+      border-color: #e6cf9d;
+    }
+
+    .status.unverified {
+      color: var(--warn);
+      background: #fde7ea;
+      border-color: #efc0c8;
+    }
+
+    .text {
+      margin-top: 6px;
+      font-size: 0.95rem;
+      line-height: 1.48;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .chips {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--line);
+      color: #2f4937;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .actions {
+      margin-top: 8px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+
+    .actions a {
+      color: var(--accent-2);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .actions a:hover { text-decoration: underline; }
+
+    .empty {
+      padding: 34px 16px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+
+    .load-wrap {
+      padding: 14px;
+      display: flex;
+      justify-content: center;
+      border-top: 1px solid var(--line);
+      background: #fafdfa;
+    }
+
+    .side {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      position: sticky;
+      top: 12px;
+      height: fit-content;
+    }
+
+    .side h2 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+    }
+
+    .row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .row label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #f4f8f3;
+      border-radius: 10px;
+      color: var(--text);
+      padding: 9px 10px;
+      font: inherit;
+      font-size: 0.88rem;
+    }
+
+    .checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .checks label {
+      border: 1px solid var(--line);
+      background: #f4f8f3;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 0.75rem;
+      color: #345241;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 11px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    button.secondary {
+      background: #e8eeea;
+      color: var(--text);
+    }
+
+    button.load-more {
+      background: #eef4ef;
+      color: #244333;
+      border: 1px solid #cfe0d0;
+      min-width: 220px;
+    }
+
+    .hint {
+      margin-top: 8px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-family: "IBM Plex Mono", monospace;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 960px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+      .side {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="feed-shell">
+      <header class="titlebar">
+        <h1>OSNIT Feed</h1>
+        <div class="small" id="stats">idle</div>
+      </header>
+      <div id="feed" class="feed"></div>
+      <div class="load-wrap">
+        <button id="loadMore" class="load-more" type="button">Load More</button>
+      </div>
+    </section>
+
+    <aside class="side">
+      <h2>Filters</h2>
+      <div class="row">
+        <label for="q">Search</label>
+        <input id="q" type="text" placeholder="missile, drone, sanctions..." />
+      </div>
+      <div class="row">
+        <label for="timeframe">Timeframe</label>
+        <select id="timeframe">
+          <option value="">(none)</option>
+          <option value="1h">last hour</option>
+          <option value="6h">last 6 hours</option>
+          <option value="24h">last 1 day</option>
+          <option value="7d">last 1 week</option>
+          <option value="30d">last 1 month</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="verification">Verification</label>
+        <select id="verification">
+          <option value="">(all)</option>
+          <option value="verified">verified</option>
+          <option value="partially_verified">partially_verified</option>
+          <option value="unverified">unverified</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="translateTo">Translate</label>
+        <select id="translateTo">
+          <option value="">original</option>
+          <option value="en">English</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="ar">Arabic</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="tags">Tags</label>
+        <input id="tags" type="text" placeholder="x_filter:exact, cyber, iran" />
+      </div>
+
+      <div class="row">
+        <label>Source Types</label>
+        <div class="checks" id="sourceChecks"></div>
+      </div>
+      <div class="row">
+        <label>Regions</label>
+        <div class="checks" id="regionChecks"></div>
+      </div>
+
+      <div class="row">
+        <label for="baseUrl">API Base URL</label>
+        <input id="baseUrl" type="text" value="/api/osnit/v1" />
+      </div>
+
+      <div class="buttons">
+        <button id="applyBtn" class="primary" type="button">Apply</button>
+        <button id="resetBtn" class="secondary" type="button">Reset</button>
+      </div>
+      <div class="buttons">
+        <button id="refreshBtn" class="secondary" type="button">Refresh Gather</button>
+        <button id="jumpTopBtn" class="secondary" type="button">Jump Top</button>
+      </div>
+
+      <p class="hint">
+        Feed mode: uses <code>list-feed</code>.<br>
+        Search mode: uses <code>search-items</code> when Search is not empty.
+      </p>
+    </aside>
+  </main>
+
+  <script>
+    const REGIONS = ["iran", "middle_east", "ukraine", "russia", "usa", "china", "taiwan", "venezuela", "cuba", "colombia", "brazil"];
+    const SOURCES = ["rss", "x", "telegram"];
+    const PAGE_SIZE = 20;
+
+    const state = {
+      cursor: "",
+      nextCursor: "",
+      total: 0,
+      loading: false
+    };
+
+    const feedEl = document.getElementById("feed");
+    const statsEl = document.getElementById("stats");
+    const loadMoreBtn = document.getElementById("loadMore");
+
+    function byId(id) {
+      return document.getElementById(id);
+    }
+
+    function mkChecks(rootId, name, values) {
+      const root = byId(rootId);
+      values.forEach((v) => {
+        const id = `${name}-${v}`;
+        const label = document.createElement("label");
+        label.innerHTML = `<input id="${id}" name="${name}" type="checkbox" value="${v}"> ${v}`;
+        root.appendChild(label);
+      });
+    }
+
+    function checked(name) {
+      return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map((el) => el.value);
+    }
+
+    function endpointBase() {
+      const value = byId("baseUrl").value.trim();
+      if (!value) return "/api/osnit/v1";
+      if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("/")) return value.replace(/\/$/, "");
+      return `/${value.replace(/^\/+/, "").replace(/\/$/, "")}`;
+    }
+
+    function parseCsv(v) {
+      return (v || "")
+        .split(/[,\s]+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+
+    function requestMeta() {
+      const q = byId("q").value.trim();
+      const params = new URLSearchParams();
+
+      const timeframe = byId("timeframe").value.trim();
+      const verification = byId("verification").value.trim();
+      const translateTo = byId("translateTo").value.trim();
+      const tags = parseCsv(byId("tags").value);
+      const regions = checked("regions");
+      const sourceTypes = checked("source_types");
+
+      if (q) params.set("q", q);
+      if (timeframe) params.set("timeframe", timeframe);
+      if (verification) params.set("verification_status", verification);
+      if (translateTo) params.set("translate_to", translateTo);
+      if (tags.length) params.set("tags", tags.join(","));
+      if (regions.length) params.set("regions", regions.join(","));
+      if (sourceTypes.length) params.set("source_types", sourceTypes.join(","));
+
+      params.set("limit", String(PAGE_SIZE));
+      if (state.cursor) params.set("cursor", state.cursor);
+
+      const path = q ? "search-items" : "list-feed";
+      return { path, params };
+    }
+
+    function verificationClass(v) {
+      if (v === "OSNIT_VERIFICATION_STATUS_VERIFIED") return "verified";
+      if (v === "OSNIT_VERIFICATION_STATUS_PARTIALLY_VERIFIED") return "partial";
+      return "unverified";
+    }
+
+    function verificationLabel(v) {
+      if (v === "OSNIT_VERIFICATION_STATUS_VERIFIED") return "verified";
+      if (v === "OSNIT_VERIFICATION_STATUS_PARTIALLY_VERIFIED") return "partial";
+      return "unverified";
+    }
+
+    function safeDate(ms) {
+      const n = Number(ms);
+      if (!Number.isFinite(n) || n <= 0) return "";
+      const d = new Date(n);
+      return `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+    }
+
+    function confidenceLabel(v) {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return "";
+      return `${Math.round(n * 100)}%`;
+    }
+
+    function renderItem(item) {
+      const card = document.createElement("article");
+      card.className = "item";
+
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      const sourceName = item.sourceName || "Source";
+      avatar.textContent = sourceName.slice(0, 1).toUpperCase();
+
+      const body = document.createElement("div");
+      const meta = document.createElement("div");
+      meta.className = "meta-row";
+      meta.innerHTML = `
+        <span class="source-name">${escapeHtml(sourceName)}</span>
+        <span class="source-handle">@${escapeHtml(item.sourceHandle || "unknown")}</span>
+        <span class="dot">•</span>
+        <span class="date">${escapeHtml(safeDate(item.publishedAt))}</span>
+        <span class="status ${verificationClass(item.verificationStatus)}">${verificationLabel(item.verificationStatus)}</span>
+      `;
+
+      const text = document.createElement("div");
+      text.className = "text";
+      text.textContent = item.text || item.title || "";
+
+      const chips = document.createElement("div");
+      chips.className = "chips";
+      const allChips = [
+        ...(Array.isArray(item.regions) ? item.regions : []),
+        ...(Array.isArray(item.themes) ? item.themes : []),
+        ...(Array.isArray(item.tags) ? item.tags.slice(0, 4) : [])
+      ];
+      [...new Set(allChips)].slice(0, 8).forEach((tag) => {
+        const c = document.createElement("span");
+        c.className = "chip";
+        c.textContent = tag;
+        chips.appendChild(c);
+      });
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      actions.innerHTML = `
+        <span>${escapeHtml(item.sourceType || "")}</span>
+        <span>confidence ${escapeHtml(confidenceLabel(item.confidence))}</span>
+        <a href="${encodeURI(item.url || "#")}" target="_blank" rel="noopener noreferrer">open source</a>
+      `;
+
+      body.appendChild(meta);
+      body.appendChild(text);
+      if (allChips.length) body.appendChild(chips);
+      body.appendChild(actions);
+
+      card.appendChild(avatar);
+      card.appendChild(body);
+      return card;
+    }
+
+    function renderFeed(items, reset) {
+      if (reset) feedEl.innerHTML = "";
+      if (!items.length && reset) {
+        feedEl.innerHTML = `<div class="empty">No items for this filter set.</div>`;
+        return;
+      }
+      items.forEach((item) => feedEl.appendChild(renderItem(item)));
+    }
+
+    function setStats(msg) {
+      statsEl.textContent = msg;
+    }
+
+    function escapeHtml(v) {
+      return String(v)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    async function loadFeed(reset, forceRefresh) {
+      if (state.loading) return;
+      state.loading = true;
+      loadMoreBtn.disabled = true;
+      if (reset) state.cursor = "";
+
+      const { path, params } = requestMeta();
+      if (forceRefresh) params.set("refresh", "true");
+
+      const url = `${endpointBase()}/${path}?${params.toString()}`;
+      const started = performance.now();
+
+      try {
+        setStats("loading...");
+        const res = await fetch(url, { headers: { "Accept": "application/json" } });
+        const payload = await res.json();
+        const ms = Math.round(performance.now() - started);
+        const items = Array.isArray(payload.items) ? payload.items : [];
+
+        renderFeed(items, reset);
+        state.total = Number(payload.total || 0);
+        state.nextCursor = payload.nextCursor || "";
+        state.cursor = state.nextCursor || "";
+
+        setStats(`${items.length} shown · total ${state.total} · ${ms}ms`);
+        loadMoreBtn.style.display = state.nextCursor ? "inline-block" : "none";
+      } catch (error) {
+        if (reset) {
+          feedEl.innerHTML = `<div class="empty">Request failed. ${escapeHtml(String(error && error.message ? error.message : error))}</div>`;
+        }
+        setStats("request failed");
+      } finally {
+        state.loading = false;
+        loadMoreBtn.disabled = false;
+      }
+    }
+
+    function resetFilters() {
+      byId("q").value = "";
+      byId("timeframe").value = "24h";
+      byId("verification").value = "";
+      byId("translateTo").value = "en";
+      byId("tags").value = "";
+      document.querySelectorAll('input[name="regions"]').forEach((el) => { el.checked = false; });
+      document.querySelectorAll('input[name="source_types"]').forEach((el) => { el.checked = false; });
+      state.cursor = "";
+    }
+
+    mkChecks("regionChecks", "regions", REGIONS);
+    mkChecks("sourceChecks", "source_types", SOURCES);
+
+    byId("timeframe").value = "24h";
+    byId("translateTo").value = "en";
+    const tg = document.getElementById("source_types-telegram");
+    if (tg) tg.checked = true;
+
+    byId("applyBtn").addEventListener("click", () => loadFeed(true, false));
+    byId("resetBtn").addEventListener("click", () => {
+      resetFilters();
+      loadFeed(true, false);
+    });
+    byId("refreshBtn").addEventListener("click", () => loadFeed(true, true));
+    byId("jumpTopBtn").addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    byId("q").addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") loadFeed(true, false);
+    });
+    loadMoreBtn.addEventListener("click", () => {
+      if (!state.nextCursor) return;
+      loadFeed(false, false);
+    });
+
+    loadFeed(true, true);
+  </script>
+</body>
+</html>

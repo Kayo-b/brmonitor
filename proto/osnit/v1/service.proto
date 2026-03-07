@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package osnit.v1;
+
+import "sebuf/http/annotations.proto";
+import "osnit/v1/get_item.proto";
+import "osnit/v1/list_feed.proto";
+import "osnit/v1/list_sources.proto";
+import "osnit/v1/search_items.proto";
+
+// OsnitService provides gathered OSNIT feed and search APIs.
+service OsnitService {
+  option (sebuf.http.service_config) = {base_path: "/api/osnit/v1"};
+
+  // ListFeed returns the latest OSNIT items with structured filters.
+  rpc ListFeed(ListFeedRequest) returns (ListFeedResponse) {
+    option (sebuf.http.config) = {path: "/list-feed", method: HTTP_METHOD_GET};
+  }
+
+  // SearchItems performs text search on gathered OSNIT items.
+  rpc SearchItems(SearchItemsRequest) returns (SearchItemsResponse) {
+    option (sebuf.http.config) = {path: "/search-items", method: HTTP_METHOD_GET};
+  }
+
+  // GetItem returns one OSNIT item by id.
+  rpc GetItem(GetItemRequest) returns (GetItemResponse) {
+    option (sebuf.http.config) = {path: "/get-item", method: HTTP_METHOD_GET};
+  }
+
+  // ListSources returns configured source definitions.
+  rpc ListSources(ListSourcesRequest) returns (ListSourcesResponse) {
+    option (sebuf.http.config) = {path: "/list-sources", method: HTTP_METHOD_GET};
+  }
+}

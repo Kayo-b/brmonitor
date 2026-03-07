@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package osnit.v1;
+
+import "sebuf/http/annotations.proto";
+import "osnit/v1/osnit_item.proto";
+
+// ListSourcesRequest lists configured gathering sources.
+message ListSourcesRequest {
+  // Optional source type filter: rss, x, telegram.
+  string source_type = 1 [(sebuf.http.query) = { name: "source_type" }];
+  // Optional region filter.
+  string region = 2 [(sebuf.http.query) = { name: "region" }];
+}
+
+// ListSourcesResponse returns configured sources.
+message ListSourcesResponse {
+  // Sources currently configured by the gatherer.
+  repeated OsnitSource sources = 1;
+  // Last gather timestamp in epoch milliseconds.
+  int64 refreshed_at = 2 [(sebuf.http.int64_encoding) = INT64_ENCODING_NUMBER];
+}
